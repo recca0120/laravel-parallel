@@ -1,0 +1,43 @@
+{
+    "name": "recca0120/parallel-test",
+    "description": "",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "recca0120",
+            "email": "recca0120@gmail.com"
+        }
+    ],
+    "type": "library",
+    "require": {
+        "guzzlehttp/promises": "^1.4",
+        "guzzlehttp/psr7": "^1.8"
+    },
+    "require-dev": {
+        "mockery/mockery": "^0.9|^1.3",
+        "orchestra/testbench": "^6.18",
+        "phpunit/phpunit": "^9.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Recca0120\\ParallelTest\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Recca0120\\ParallelTest\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php ./vendor/bin/testbench package:discover --ansi"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}
