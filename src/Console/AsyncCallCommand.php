@@ -3,10 +3,11 @@
 namespace Recca0120\ParallelTest\Console;
 
 use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Testing\TestResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -81,21 +82,21 @@ class AsyncCallCommand extends Command
             ->handleWithCredentials($input);
 
         $response = $this->getTestResponse($input);
-        $output->write($this->toMessage($response));
+        $output->write($this->toMessage($response->baseResponse));
 
-        return $response->isOk() ? Command::SUCCESS : Command::FAILURE;
+        return $response->isOk() ? 0 : 1;
     }
 
     /**
      * @param InputInterface $input
-     * @return TestResponse
+     * @return \Illuminate\Testing\TestResponse
      */
-    private function getTestResponse(InputInterface $input): TestResponse
+    private function getTestResponse(InputInterface $input)
     {
         $method = strtolower($input->getOption('method') ?: 'get');
         $uri = $input->getArgument('uri');
 
-        if ($input->getOption('parameters')) {
+        if ($input->getOption('parameters') !== null) {
             $parameters = self::getArrayFromOption($input, 'parameters');
             $cookies = self::getArrayFromOption($input, 'cookies');
             $files = self::getArrayFromOption($input, 'files');
@@ -114,12 +115,12 @@ class AsyncCallCommand extends Command
     }
 
     /**
-     * @param TestResponse $response
+     * @param Response|JsonResponse $response
      * @return string
      */
-    private function toMessage(TestResponse $response): string
+    private function toMessage($response): string
     {
-        return Message::toString(new Response(
+        return Message::toString(new Psr7Response(
             $response->getStatusCode(), $response->headers->all(), $response->getContent()
         ));
     }

@@ -1,5 +1,6 @@
-#!/bin/php
+#!/usr/bin/env php
 <?php
+
 
 use Illuminate\Http\Request;
 use Orchestra\Testbench\Concerns\CreatesApplication;
