@@ -1,0 +1,40 @@
+#!/bin/php
+<?php
+
+use Illuminate\Http\Request;
+use Orchestra\Testbench\Concerns\CreatesApplication;
+use Orchestra\Testbench\Concerns\HandlesRoutes;
+use Recca0120\ParallelTest\Console\AsyncCallCommand;
+use Symfony\Component\Console\Application;
+
+require_once __DIR__.'/../../vendor/autoload.php';
+
+$laravel = new class() {
+    use CreatesApplication;
+    use HandlesRoutes;
+
+    private $app;
+
+    protected function defineRoutes($router): void
+    {
+        $router->get('/', function (Request $request) {
+            return $request->isJson()
+                ? response()->json(['content' => 'Hello World'])
+                : 'Hello World';
+        });
+    }
+
+    public function getApplication()
+    {
+        $this->app = $this->createApplication();
+
+        $this->setUpApplicationRoutes();
+
+        return $this->app;
+    }
+};
+
+$application = new Application();
+$command = new AsyncCallCommand($laravel->getApplication());
+$application->add($command);
+$application->run();

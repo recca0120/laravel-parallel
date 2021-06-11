@@ -10,6 +10,7 @@
     ],
     "type": "library",
     "require": {
+        "ext-json": "*",
         "guzzlehttp/promises": "^1.4",
         "guzzlehttp/psr7": "^1.8"
     },
