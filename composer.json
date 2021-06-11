@@ -1,5 +1,5 @@
 {
-    "name": "recca0120/parallel-test",
+    "name": "recca0120/async-testing",
     "description": "",
     "license": "MIT",
     "authors": [
@@ -22,12 +22,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Recca0120\\ParallelTest\\": "src/"
+            "Recca0120\\AsyncTesting\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Recca0120\\ParallelTest\\Tests\\": "tests/"
+            "Recca0120\\AsyncTesting\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -45,7 +45,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Recca0120\\ParallelTest\\ParallelTestServiceProvider"
+                "Recca0120\\AsyncTesting\\AsyncTestingServiceProvider"
             ]
         }
     }

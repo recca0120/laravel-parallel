@@ -1,14 +1,14 @@
 <?php
 
-namespace Recca0120\ParallelTest\Tests\Console;
+namespace Recca0120\AsyncTesting\Tests\Console;
 
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Recca0120\ParallelTest\Console\AsyncCallCommand;
-use Recca0120\ParallelTest\Tests\TestCase;
+use Recca0120\AsyncTesting\Console\AsyncCallCommand;
+use Recca0120\AsyncTesting\Tests\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 

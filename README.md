@@ -1,6 +1,6 @@
 ## Screenshot
 
-![Screenshot](https://raw.githubusercontent.com/recca0120/laravel_parallel_test/master/examples/screenshot.gif)
+![Screenshot](https://raw.githubusercontent.com/recca0120/async-testing/master/examples/screenshot.gif)
 
 ## INSTALL
 
@@ -8,14 +8,8 @@ composer.json
 
 ```json
 {
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/recca0120/laravel_parallel_test"
-        }
-    ],
     "require-dev": {
-        "recca0120/parallel-test": "dev-master"
+        "recca0120/async-testing": "^0.0.1"
     }
 }
 ```
@@ -41,7 +35,7 @@ namespace Tests\Feature;
 
 use GuzzleHttp\Promise\Utils;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Recca0120\ParallelTest\AsyncRequest;
+use Recca0120\AsyncTesting\AsyncRequest;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
