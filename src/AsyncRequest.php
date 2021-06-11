@@ -500,7 +500,7 @@ class AsyncRequest
             'withoutMiddleware' => $this->withoutMiddleware,
             'withMiddleware' => $this->withMiddleware,
             'withUnencryptedCookies' => $this->unencryptedCookies,
-            'serverVariables' => $this->serverVariables,
+            // 'serverVariables' => $this->serverVariables,
             'followRedirects' => $this->followRedirects,
             'withCredentials' => $this->withCredentials,
             'disableCookieEncryption' => ! $this->encryptCookies,
