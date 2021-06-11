@@ -1,11 +1,11 @@
 <?php
 
-namespace Recca0120\ParallelTest;
+namespace Recca0120\AsyncTesting;
 
 use Illuminate\Support\ServiceProvider;
-use Recca0120\ParallelTest\Console\AsyncCallCommand;
+use Recca0120\AsyncTesting\Console\AsyncCallCommand;
 
-class ParallelTestServiceProvider extends ServiceProvider
+class AsyncTestingServiceProvider extends ServiceProvider
 {
     public function register()
     {

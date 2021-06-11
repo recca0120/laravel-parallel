@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\ParallelTest;
+namespace Recca0120\AsyncTesting;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
