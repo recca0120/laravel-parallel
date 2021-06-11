@@ -14,38 +14,264 @@ use Symfony\Component\Process\Process;
 
 class AsyncRequest
 {
-    private $env = [];
+    /**
+     * Additional cookies for the request.
+     *
+     * @var array
+     */
+    protected $defaultCookies = [];
+
+    /**
+     * Additional cookies will not be encrypted for the request.
+     *
+     * @var array
+     */
+    protected $unencryptedCookies = [];
+
+    /**
+     * Additional server variables for the request.
+     *
+     * @var array
+     */
+    protected $serverVariables = [];
+
+    /**
+     * Indicates whether redirects should be followed.
+     *
+     * @var bool
+     */
+    protected $followRedirects = false;
+
+    /**
+     * Indicates whether cookies should be encrypted.
+     *
+     * @var bool
+     */
+    protected $encryptCookies = true;
+
+    /**
+     * Indicated whether JSON requests should be performed "with credentials" (cookies).
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/withCredentials
+     *
+     * @var bool
+     */
+    protected $withCredentials = false;
+
+    /**
+     * @var array
+     */
+    protected $withoutMiddleware = [];
+
+    /**
+     * @var array
+     */
+    protected $withMiddleware = [];
+
     /**
      * @var string|null
      */
     private $phpBinary;
+
     /**
      * @var string|null
      */
     private static $binary = 'artisan';
+
     /**
      * @var array
      */
     private $defaultHeaders = [];
 
     /**
-     * AsyncRequest constructor.
-     * @param array $env
+     * Define additional headers to be sent with the request.
+     *
+     * @param array $headers
+     * @return $this
      */
-    public function __construct(array $env = [])
+    public function withHeaders(array $headers): self
     {
-        $this->setEnv($env);
+        $this->defaultHeaders = array_merge($this->defaultHeaders, $headers);
+
+        return $this;
     }
 
     /**
-     * @param array $env
+     * Add a header to be sent with the request.
+     *
+     * @param string $name
+     * @param string $value
      * @return $this
      */
-    public function setEnv(array $env = []): self
+    public function withHeader(string $name, string $value): self
     {
-        $this->env = array_merge($this->env, $env);
+        $this->defaultHeaders[$name] = $value;
 
         return $this;
+    }
+
+    /**
+     * Add an authorization token for the request.
+     *
+     * @param string $token
+     * @param string $type
+     * @return $this
+     */
+    public function withToken(string $token, string $type = 'Bearer'): self
+    {
+        return $this->withHeader('Authorization', $type.' '.$token);
+    }
+
+    /**
+     * Flush all the configured headers.
+     *
+     * @return $this
+     */
+    public function flushHeaders(): self
+    {
+        $this->defaultHeaders = [];
+
+        return $this;
+    }
+
+    /**
+     * Define a set of server variables to be sent with the requests.
+     *
+     * @param array $server
+     * @return $this
+     */
+    public function withServerVariables(array $server): self
+    {
+        $this->serverVariables = $server;
+
+        return $this;
+    }
+
+    /**
+     * Disable middleware for the test.
+     *
+     * @param string|array|null $middleware
+     * @return $this
+     */
+    public function withoutMiddleware($middleware = null): self
+    {
+        $this->withoutMiddleware[] = func_get_args();
+
+        return $this;
+    }
+
+    /**
+     * Enable the given middleware for the test.
+     *
+     * @param string|array|null $middleware
+     * @return $this
+     */
+    public function withMiddleware($middleware = null): self
+    {
+        $this->withMiddleware[] = func_get_args();
+
+        return $this;
+    }
+
+    /**
+     * Define additional cookies to be sent with the request.
+     *
+     * @param array $cookies
+     * @return $this
+     */
+    public function withCookies(array $cookies): self
+    {
+        $this->defaultCookies = array_merge($this->defaultCookies, $cookies);
+
+        return $this;
+    }
+
+    /**
+     * Add a cookie to be sent with the request.
+     *
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
+    public function withCookie(string $name, string $value): self
+    {
+        $this->defaultCookies[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Define additional cookies will not be encrypted before sending with the request.
+     *
+     * @param array $cookies
+     * @return $this
+     */
+    public function withUnencryptedCookies(array $cookies): self
+    {
+        $this->unencryptedCookies = array_merge($this->unencryptedCookies, $cookies);
+
+        return $this;
+    }
+
+    /**
+     * Add a cookie will not be encrypted before sending with the request.
+     *
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
+    public function withUnencryptedCookie(string $name, string $value): self
+    {
+        $this->unencryptedCookies[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Automatically follow any redirects returned from the response.
+     *
+     * @return $this
+     */
+    public function followingRedirects(): self
+    {
+        $this->followRedirects = true;
+
+        return $this;
+    }
+
+    /**
+     * Include cookies and authorization headers for JSON requests.
+     *
+     * @return $this
+     */
+    public function withCredentials(): self
+    {
+        $this->withCredentials = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable automatic encryption of cookie values.
+     *
+     * @return $this
+     */
+    public function disableCookieEncryption(): self
+    {
+        $this->encryptCookies = false;
+
+        return $this;
+    }
+
+    /**
+     * Set the referer header and previous URL session value in order to simulate a previous request.
+     *
+     * @param string $url
+     * @return $this
+     */
+    public function from(string $url): self
+    {
+        return $this->withHeader('referer', $url);
     }
 
     /**
@@ -266,25 +492,26 @@ class AsyncRequest
     {
         $options = self::toOptions([
             'method' => $method,
-            'parameters' => json_encode($parameters),
-            'cookies' => json_encode($cookies),
-            'files' => json_encode($files),
-            'server' => json_encode($server),
+            'parameters' => $parameters,
+            'cookies' => $cookies,
+            'files' => $files,
+            'server' => $server,
             'content' => $content,
-            'call' => true,
+            'withoutMiddleware' => $this->withoutMiddleware,
+            'withMiddleware' => $this->withMiddleware,
+            'withUnencryptedCookies' => $this->unencryptedCookies,
+            'serverVariables' => $this->serverVariables,
+            'followRedirects' => $this->followRedirects,
+            'withCredentials' => $this->withCredentials,
+            'disableCookieEncryption' => ! $this->encryptCookies,
         ]);
 
-        $phpBinary = $this->getPhpBinary();
-        $binary = $this->getBinary();
-        $command = array_merge([$phpBinary, $binary, 'async:call', $uri], $options);
-        $process = new Process($command, null, $this->env, null, 86400);
-        $process->start();
+        return (new FulfilledPromise($this->createProcess($uri, $options)))
+            ->then(function (Process $process) {
+                $process->wait();
 
-        return (new FulfilledPromise($process))->then(function (Process $process) {
-            $process->wait();
-
-            return $this->toTestResponse($process->getOutput());
-        });
+                return $this->toTestResponse($process->getOutput());
+            });
     }
 
     /**
@@ -293,6 +520,31 @@ class AsyncRequest
     public static function setBinary(string $binary): void
     {
         self::$binary = $binary;
+    }
+
+    /**
+     * @param array|null $serverVariables
+     * @return $this
+     */
+    public static function create(array $serverVariables = null): self
+    {
+        return (new self())->withServerVariables($serverVariables ?: $_SERVER);
+    }
+
+    /**
+     * @param string $uri
+     * @param array $options
+     * @return Process
+     */
+    protected function createProcess(string $uri, array $options): Process
+    {
+        $phpBinary = $this->getPhpBinary();
+        $binary = $this->getBinary();
+        $command = array_merge([$phpBinary, $binary, 'async:call', $uri], $options);
+        $process = new Process($command, null, $this->serverVariables, null, 86400);
+        $process->start();
+
+        return $process;
     }
 
     /**
@@ -336,7 +588,10 @@ class AsyncRequest
     {
         $options = [];
         foreach ($data as $key => $value) {
-            $options[] = '--'.$key.'='.$value;
+            $value = is_array($value) ? json_encode($value) : $value;
+            if (! empty($value)) {
+                $options[] = '--'.$key.'='.$value;
+            }
         }
 
         return $options;
@@ -377,7 +632,7 @@ class AsyncRequest
      */
     private function prepareCookiesForRequest(): array
     {
-        return [];
+        return $this->defaultCookies;
     }
 
     /**

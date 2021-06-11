@@ -50,14 +50,20 @@ class AsyncCallCommand extends Command
     {
         $this->addArgument('uri', InputArgument::REQUIRED);
         $this->addOption('method', null, InputOption::VALUE_OPTIONAL, '', 'GET');
-        $this->addOption('headers', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('data', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('parameters', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('cookies', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('files', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('server', null, InputOption::VALUE_OPTIONAL, '', '[]');
-        $this->addOption('content', null, InputOption::VALUE_OPTIONAL, '', '');
-        $this->addOption('call', null, InputOption::VALUE_REQUIRED);
+        $this->addOption('headers', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('data', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('parameters', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('cookies', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('files', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('server', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('content', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('withoutMiddleware', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('withMiddleware', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('withUnencryptedCookies', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('serverVariables', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('followRedirects', null, InputOption::VALUE_REQUIRED);
+        $this->addOption('withCredentials', null, InputOption::VALUE_REQUIRED);
+        $this->addOption('disableCookieEncryption', null, InputOption::VALUE_REQUIRED);
     }
 
     /**
@@ -67,6 +73,13 @@ class AsyncCallCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->handleWithoutMiddleware($input)
+            ->handleWithMiddleware($input)
+            ->handleWithUnencryptedCookies($input)
+            ->handleServerVariables($input)
+            ->handleFollowRedirects($input)
+            ->handleWithCredentials($input);
+
         $response = $this->getTestResponse($input);
         $output->write($this->toMessage($response));
 
@@ -82,18 +95,18 @@ class AsyncCallCommand extends Command
         $method = strtolower($input->getOption('method') ?: 'get');
         $uri = $input->getArgument('uri');
 
-        if ($input->getOption('call')) {
+        if ($input->getOption('parameters')) {
             $parameters = self::getArrayFromOption($input, 'parameters');
             $cookies = self::getArrayFromOption($input, 'cookies');
             $files = self::getArrayFromOption($input, 'files');
-            $server = self::getArrayFromOption($input, 'server');
+            $server = $this->handleFrom(self::getArrayFromOption($input, 'server'));
             $content = $input->getOption('content');
 
             return $this->call($method, $uri, $parameters, $cookies, $files, $server, $content);
         }
 
         $method = $method !== 'json' ? str_replace('json', 'Json', $method) : $method;
-        $headers = self::getArrayFromOption($input, 'headers');
+        $headers = $this->handleFrom(self::getArrayFromOption($input, 'headers'));
 
         return in_array($method, ['get', 'getJson', 'json'], true)
             ? $this->{$method}($uri, $headers)
@@ -118,6 +131,106 @@ class AsyncCallCommand extends Command
      */
     private static function getArrayFromOption(InputInterface $input, string $name): array
     {
-        return json_decode($input->getOption($name), true);
+        return json_decode($input->getOption($name), true) ?: [];
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleWithoutMiddleware(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withoutMiddleware');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withoutMiddleware(...$value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleWithMiddleware(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withMiddleware');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withMiddleware(...$value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleWithUnencryptedCookies(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withUnencryptedCookies');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withUnencryptedCookies($value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleServerVariables(InputInterface $input): self
+    {
+        if ($input->getOption('serverVariables')) {
+            $this->withServerVariables(self::getArrayFromOption($input, 'serverVariables'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleFollowRedirects(InputInterface $input): self
+    {
+        if ($input->getOption('followRedirects')) {
+            $this->followingRedirects();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return AsyncCallCommand
+     */
+    private function handleWithCredentials(InputInterface $input): self
+    {
+        if ($input->getOption('withCredentials')) {
+            $this->withCredentials();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $headers
+     * @return array
+     */
+    private function handleFrom(array $headers): array
+    {
+        if (array_key_exists('HTTP_REFERER', $headers)) {
+            $this->from($headers['HTTP_REFERER']);
+        }
+
+        return $headers;
     }
 }

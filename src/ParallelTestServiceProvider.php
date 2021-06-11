@@ -12,7 +12,7 @@ class ParallelTestServiceProvider extends ServiceProvider
         $this->commands([AsyncCallCommand::class]);
 
         $this->app->bind(AsyncRequest::class, function () {
-            return new AsyncRequest($this->app['request']->server->all());
+            return AsyncRequest::create($this->app['request']->server->all());
         });
     }
 }

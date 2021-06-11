@@ -14,9 +14,10 @@ class AsyncRequestTest extends TestCase
         AsyncRequest::setBinary(__DIR__.'/fixtures/artisan');
     }
 
-    public function test_handle_async_request(): void
+    public function test_handle_get(): void
     {
         $asyncRequest = new AsyncRequest();
+        $asyncRequest->from('/foo');
 
         $response = $this->toTestResponse(
             $asyncRequest->get('/', ['HTTP_FOO' => 'foo'])
@@ -27,7 +28,7 @@ class AsyncRequestTest extends TestCase
             ->assertSee('Hello World');
     }
 
-    public function test_handle_async_json_request(): void
+    public function test_handle_get_json(): void
     {
         $asyncRequest = new AsyncRequest();
 
@@ -40,7 +41,7 @@ class AsyncRequestTest extends TestCase
             ->assertJson(['content' => 'Hello World']);
     }
 
-    public function test_handle_not_found_request(): void
+    public function test_handle_not_found(): void
     {
         $asyncRequest = new AsyncRequest();
 

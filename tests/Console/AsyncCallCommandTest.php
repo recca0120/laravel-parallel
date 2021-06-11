@@ -39,12 +39,13 @@ class AsyncCallCommandTest extends TestCase
         $response = $this->givenResponse([
             'uri' => '/auth/login',
             '--method' => 'post',
+            '--parameters' => '[]',
             '--server' => json_encode([
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_Accept' => 'application/json',
             ]),
             '--content' => json_encode(['email' => $this->user->email, 'password' => 'password']),
-            '--call' => true,
+            '--followRedirects' => false,
         ]);
 
         self::assertJsonStringEqualsJsonString($this->user->toJson(), (string) $response->getBody());
