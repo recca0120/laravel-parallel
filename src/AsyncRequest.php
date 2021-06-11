@@ -29,12 +29,21 @@ class AsyncRequest
     private $defaultHeaders = [];
 
     /**
+     * AsyncRequest constructor.
+     * @param array $env
+     */
+    public function __construct(array $env = [])
+    {
+        $this->setEnv($env);
+    }
+
+    /**
      * @param array $env
      * @return $this
      */
     public function setEnv(array $env = []): self
     {
-        $this->env = $env;
+        $this->env = array_merge($this->env, $env);
 
         return $this;
     }

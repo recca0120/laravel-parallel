@@ -40,5 +40,12 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Recca0120\\ParallelTest\\ParallelTestServiceProvider"
+            ]
+        }
     }
 }
