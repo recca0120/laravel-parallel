@@ -2,13 +2,27 @@
 
 namespace Recca0120\ParallelTest\Tests;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
 use Orchestra\Testbench\TestCase as BaseTestCase;
+use Recca0120\ParallelTest\ParallelTestServiceProvider;
 
 class TestCase extends BaseTestCase
 {
+    /**
+     * Get package providers.
+     *
+     * @param Application $app
+     *
+     * @return array
+     */
+    protected function getPackageProviders($app): array
+    {
+        return [ParallelTestServiceProvider::class];
+    }
+
     /**
      * Define database migrations.
      *

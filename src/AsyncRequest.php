@@ -5,10 +5,11 @@ namespace Recca0120\ParallelTest;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Response;
-use Illuminate\Http\JsonResponse as IlluminateJsonResponse;
-use Illuminate\Http\Response as IlluminateResponse;
-use Illuminate\Testing\TestResponse;
+use GuzzleHttp\Psr7\Response as Psr7Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -528,7 +529,9 @@ class AsyncRequest
      */
     public static function create(array $serverVariables = null): self
     {
-        return (new self())->withServerVariables($serverVariables ?: $_SERVER);
+        return (new self())->withServerVariables(
+            $serverVariables ?: Request::createFromGlobals()->server->all()
+        );
     }
 
     /**
@@ -549,33 +552,37 @@ class AsyncRequest
 
     /**
      * @param string $message
-     * @return TestResponse
+     * @return \Illuminate\Testing\TestResponse
      */
-    private function toTestResponse(string $message): TestResponse
+    private function toTestResponse(string $message)
     {
-        return new TestResponse($this->toIlluminateResponse($message));
+        $class = class_exists(\Illuminate\Testing\TestResponse::class)
+            ? \Illuminate\Testing\TestResponse::class
+            : \Illuminate\Foundation\Testing\TestResponse::class;
+
+        return new $class($this->toResponse($message));
     }
 
     /**
-     * @return IlluminateJsonResponse|IlluminateResponse
+     * @return JsonResponse|Response
      */
-    private function toIlluminateResponse(string $message)
+    private function toResponse(string $message)
     {
-        $response = Message::parseResponse($message);
+        $response = $this->toPsr7Response($message);
         $statusCode = $response->getStatusCode();
         $headers = $response->getHeaders();
         $content = (string) $response->getBody();
 
         return $this->isJson($response)
-            ? IlluminateJsonResponse::fromJsonString($content, $statusCode, $headers)
-            : new IlluminateResponse($content, $statusCode, $headers);
+            ? JsonResponse::fromJsonString($content, $statusCode, $headers)
+            : new Response($content, $statusCode, $headers);
     }
 
     /**
-     * @param Response $response
+     * @param Psr7Response $response
      * @return bool
      */
-    private function isJson(Response $response): bool
+    private function isJson(Psr7Response $response): bool
     {
         return $response->hasHeader('content-type') && strpos($response->getHeader('content-type')[0], 'json') !== false;
     }
@@ -653,5 +660,20 @@ class AsyncRequest
     private function getBinary(): string
     {
         return self::$binary;
+    }
+
+    /**
+     * @param string $message
+     * @return Psr7Response
+     */
+    private function toPsr7Response(string $message): Psr7Response
+    {
+        try {
+            return Message::parseResponse($message);
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                $e->getMessage().PHP_EOL.PHP_EOL.$message, $e->getCode(), $e
+            );
+        }
     }
 }
