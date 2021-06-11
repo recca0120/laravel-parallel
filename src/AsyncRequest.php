@@ -573,8 +573,8 @@ class AsyncRequest
         $headers = $response->getHeaders();
         $content = (string) $response->getBody();
 
-        return $this->isJson($response)
-            ? JsonResponse::fromJsonString($content, $statusCode, $headers)
+        return $this->isJson($response) && ($data = json_decode($content, true)) && json_last_error() === JSON_ERROR_NONE
+            ? new JsonResponse($data, $statusCode, $headers)
             : new Response($content, $statusCode, $headers);
     }
 

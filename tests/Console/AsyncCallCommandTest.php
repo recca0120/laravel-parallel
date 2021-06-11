@@ -20,18 +20,14 @@ class AsyncCallCommandTest extends TestCase
     /**
      * @var User
      */
-    private $user;
+    private $user = [
+        'email' => 'recca0120@gmail.com',
+        'password' => 'password',
+    ];
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = tap(new User(), function (User $user) {
-            $user->forceFill([
-                'name' => $this->faker->name,
-                'email' => $this->faker->email,
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-            ])->save();
-        });
     }
 
     public function test_execute_call(): void
@@ -44,11 +40,11 @@ class AsyncCallCommandTest extends TestCase
                 'CONTENT_TYPE' => 'application/json',
                 'HTTP_Accept' => 'application/json',
             ]),
-            '--content' => json_encode(['email' => $this->user->email, 'password' => 'password']),
+            '--content' => json_encode(['email' => $this->user['email'], 'password' => $this->user['password']]),
             '--followRedirects' => false,
         ]);
 
-        self::assertJsonStringEqualsJsonString($this->user->toJson(), (string) $response->getBody());
+        self::assertJsonStringEqualsJsonString(json_encode($this->user), (string) $response->getBody());
     }
 
     /**
@@ -59,10 +55,10 @@ class AsyncCallCommandTest extends TestCase
         $response = $this->givenResponse([
             'uri' => '/auth/login',
             '--method' => $method,
-            '--data' => json_encode(['email' => $this->user->email, 'password' => 'password']),
+            '--data' => json_encode(['email' => $this->user['email'], 'password' => $this->user['password']]),
         ]);
 
-        self::assertJsonStringEqualsJsonString($this->user->toJson(), (string) $response->getBody());
+        self::assertJsonStringEqualsJsonString(json_encode($this->user), (string) $response->getBody());
     }
 
     public function hasBodyProvider(): array
