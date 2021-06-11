@@ -5,7 +5,7 @@
 use Illuminate\Http\Request;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
-use Recca0120\ParallelTest\Console\AsyncCallCommand;
+use Recca0120\AsyncTesting\Console\AsyncCallCommand;
 use Symfony\Component\Console\Application;
 
 require_once __DIR__.'/../../vendor/autoload.php';

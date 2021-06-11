@@ -1,10 +1,10 @@
 <?php
 
-namespace Recca0120\ParallelTest\Tests;
+namespace Recca0120\AsyncTesting\Tests;
 
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Testing\TestResponse;
-use Recca0120\ParallelTest\AsyncRequest;
+use Recca0120\AsyncTesting\AsyncRequest;
 
 class AsyncRequestTest extends TestCase
 {

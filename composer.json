@@ -1,13 +1,12 @@
 {
-    "name": "recca0120/parallel-test",
-    "description": "",
+    "name": "recca0120/async-testing",
+    "description": "Laravel Async Feature Testing",
+    "keywords": ["laravel", "testing", "async", "parallel"],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "recca0120",
-            "email": "recca0120@gmail.com"
-        }
-    ],
+    "authors": [{
+        "name": "recca0120",
+        "email": "recca0120@gmail.com"
+    }],
     "type": "library",
     "require": {
         "ext-json": "*",
@@ -22,12 +21,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Recca0120\\ParallelTest\\": "src/"
+            "Recca0120\\AsyncTesting\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Recca0120\\ParallelTest\\Tests\\": "tests/"
+            "Recca0120\\AsyncTesting\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -45,7 +44,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Recca0120\\ParallelTest\\ParallelTestServiceProvider"
+                "Recca0120\\AsyncTesting\\AsyncTestingServiceProvider"
             ]
         }
     }

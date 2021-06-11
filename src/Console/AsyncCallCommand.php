@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\ParallelTest\Console;
+namespace Recca0120\AsyncTesting\Console;
 
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response as Psr7Response;
