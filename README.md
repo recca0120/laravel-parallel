@@ -1,3 +1,7 @@
+## Screenshot
+
+![Screenshot](https://raw.githubusercontent.com/recca0120/laravel_parallel_test/master/examples/screenshot.gif)
+
 ## INSTALL
 
 composer.json
