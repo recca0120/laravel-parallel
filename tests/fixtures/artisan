@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-
 use Illuminate\Http\Request;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
