@@ -4,11 +4,6 @@ namespace Recca0120\AsyncTesting;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Response as Psr7Response;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
-use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -491,7 +486,7 @@ class AsyncRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        $options = self::toOptions([
+        $options = self::toCommandOptions([
             'method' => $method,
             'parameters' => $parameters,
             'cookies' => $cookies,
@@ -511,7 +506,7 @@ class AsyncRequest
             ->then(function (Process $process) {
                 $process->wait();
 
-                return $this->toTestResponse($process->getOutput());
+                return AsyncResponse::create($process->getOutput())->toTestResponse();
             });
     }
 
@@ -539,59 +534,26 @@ class AsyncRequest
      * @param array $options
      * @return Process
      */
-    protected function createProcess(string $uri, array $options): Process
+    private function createProcess(string $uri, array $options): Process
     {
-        $phpBinary = $this->getPhpBinary();
-        $binary = $this->getBinary();
-        $command = array_merge([$phpBinary, $binary, 'async:request', $uri], $options);
-        $process = new Process($command, null, $this->serverVariables, null, 86400);
+        $command = [$this->getPhpBinary(), $this->getBinary(), 'async:request', $uri];
+        $process = new Process(
+            array_merge($command, $options),
+            null,
+            $this->serverVariables,
+            null,
+            86400
+        );
         $process->start();
 
         return $process;
     }
 
     /**
-     * @param string $message
-     * @return \Illuminate\Testing\TestResponse
-     */
-    private function toTestResponse(string $message)
-    {
-        $class = class_exists(\Illuminate\Testing\TestResponse::class)
-            ? \Illuminate\Testing\TestResponse::class
-            : \Illuminate\Foundation\Testing\TestResponse::class;
-
-        return new $class($this->toResponse($message));
-    }
-
-    /**
-     * @return JsonResponse|Response
-     */
-    private function toResponse(string $message)
-    {
-        $response = $this->toPsr7Response($message);
-        $statusCode = $response->getStatusCode();
-        $headers = $response->getHeaders();
-        $content = (string) $response->getBody();
-
-        return $this->isJson($response) && ($data = json_decode($content, true)) && json_last_error() === JSON_ERROR_NONE
-            ? new JsonResponse($data, $statusCode, $headers)
-            : new Response($content, $statusCode, $headers);
-    }
-
-    /**
-     * @param Psr7Response $response
-     * @return bool
-     */
-    private function isJson(Psr7Response $response): bool
-    {
-        return $response->hasHeader('content-type') && strpos($response->getHeader('content-type')[0], 'json') !== false;
-    }
-
-    /**
      * @param array $data
      * @return array
      */
-    private static function toOptions(array $data): array
+    private static function toCommandOptions(array $data): array
     {
         $options = [];
         foreach ($data as $key => $value) {
@@ -660,20 +622,5 @@ class AsyncRequest
     private function getBinary(): string
     {
         return self::$binary;
-    }
-
-    /**
-     * @param string $message
-     * @return Psr7Response
-     */
-    private function toPsr7Response(string $message): Psr7Response
-    {
-        try {
-            return Message::parseResponse($message);
-        } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException(
-                $e->getMessage().PHP_EOL.PHP_EOL.$message, $e->getCode(), $e
-            );
-        }
     }
 }
