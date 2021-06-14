@@ -5,7 +5,7 @@
 use Illuminate\Http\Request;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
-use Recca0120\AsyncTesting\Console\AsyncCallCommand;
+use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
 use Symfony\Component\Console\Application;
 
 require_once __DIR__.'/../../vendor/autoload.php';
@@ -36,6 +36,6 @@ $laravel = new class() {
 };
 
 $application = new Application();
-$command = new AsyncCallCommand($laravel->getApplication());
+$command = new AsyncRequestCommand($laravel->getApplication());
 $application->add($command);
 $application->run();

@@ -543,7 +543,7 @@ class AsyncRequest
     {
         $phpBinary = $this->getPhpBinary();
         $binary = $this->getBinary();
-        $command = array_merge([$phpBinary, $binary, 'async:call', $uri], $options);
+        $command = array_merge([$phpBinary, $binary, 'async:request', $uri], $options);
         $process = new Process($command, null, $this->serverVariables, null, 86400);
         $process->start();
 
