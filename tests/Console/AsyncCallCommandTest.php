@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Recca0120\AsyncTesting\Console\AsyncCallCommand;
+use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
 use Recca0120\AsyncTesting\Tests\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -84,8 +84,8 @@ class AsyncCallCommandTest extends TestCase
     private function givenResponse(array $arguments = []): Response
     {
         $application = new Application();
-        $application->add(new AsyncCallCommand($this->app));
-        $command = $application->find('async:call');
+        $application->add(new AsyncRequestCommand($this->app));
+        $command = $application->find('async:request');
         $commandTester = new CommandTester($command);
         $commandTester->execute($arguments);
         $output = $commandTester->getDisplay();

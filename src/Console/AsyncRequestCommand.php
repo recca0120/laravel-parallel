@@ -14,14 +14,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AsyncCallCommand extends Command
+class AsyncRequestCommand extends Command
 {
     use MakesHttpRequests;
 
     /**
      * @var string
      */
-    protected static $defaultName = 'async:call';
+    protected static $defaultName = 'async:request';
     /**
      * @var Application
      */
@@ -137,7 +137,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleWithoutMiddleware(InputInterface $input): self
     {
@@ -153,7 +153,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleWithMiddleware(InputInterface $input): self
     {
@@ -169,7 +169,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleWithUnencryptedCookies(InputInterface $input): self
     {
@@ -185,7 +185,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleServerVariables(InputInterface $input): self
     {
@@ -198,7 +198,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleFollowRedirects(InputInterface $input): self
     {
@@ -211,7 +211,7 @@ class AsyncCallCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncCallCommand
+     * @return AsyncRequestCommand
      */
     private function handleWithCredentials(InputInterface $input): self
     {
