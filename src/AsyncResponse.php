@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use InvalidArgumentException;
 
 class AsyncResponse
 {
@@ -50,13 +49,7 @@ class AsyncResponse
      */
     private function toPsr7Response(): Psr7Response
     {
-        try {
-            return Message::parseResponse($this->message);
-        } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException(
-                $e->getMessage().PHP_EOL.PHP_EOL.$this->message, $e->getCode(), $e
-            );
-        }
+        return Message::parseResponse($this->message);
     }
 
     /**
