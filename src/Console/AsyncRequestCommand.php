@@ -84,7 +84,7 @@ class AsyncRequestCommand extends Command
         $response = $this->getTestResponse($input);
         $output->write($this->toMessage($response->baseResponse));
 
-        return $response->isOk() ? 0 : 1;
+        return $response->isSuccessful() ? 0 : 1;
     }
 
     /**
