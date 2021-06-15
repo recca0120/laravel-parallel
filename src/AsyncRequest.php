@@ -4,12 +4,15 @@ namespace Recca0120\AsyncTesting;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
+use Recca0120\AsyncTesting\Concerns\MakeResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 class AsyncRequest
 {
+    use MakeResponse;
+
     /**
      * Additional cookies for the request.
      *
@@ -517,7 +520,7 @@ class AsyncRequest
             ->then(function (Process $process) {
                 $process->wait();
 
-                return AsyncResponse::create($process->getOutput())->toTestResponse();
+                return $this->toTestResponse($process->getOutput());
             });
     }
 
