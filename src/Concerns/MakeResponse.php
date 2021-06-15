@@ -1,13 +1,13 @@
 <?php
 
-namespace Recca0120\AsyncTesting;
+namespace Recca0120\AsyncTesting\Concerns;
 
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
-class AsyncResponse
+trait MakeResponse
 {
     /**
      * @var string
@@ -15,49 +15,34 @@ class AsyncResponse
     private $message;
 
     /**
-     * AsyncResponse constructor.
      * @param string $message
-     */
-    public function __construct(string $message)
-    {
-        $this->message = $message;
-    }
-
-    /**
      * @return \Illuminate\Testing\TestResponse
      */
-    public function toTestResponse()
+    public function toTestResponse(string $message)
     {
         $class = class_exists(\Illuminate\Testing\TestResponse::class)
             ? \Illuminate\Testing\TestResponse::class
             : \Illuminate\Foundation\Testing\TestResponse::class;
 
-        return new $class($this->createBaseResponse());
+        return new $class($this->createBaseResponse($message));
     }
 
     /**
      * @param string $message
-     * @return AsyncResponse
-     */
-    public static function create(string $message): self
-    {
-        return new self($message);
-    }
-
-    /**
      * @return Psr7Response
      */
-    private function toPsr7Response(): Psr7Response
+    private function toPsr7Response(string $message): Psr7Response
     {
-        return Message::parseResponse($this->message);
+        return Message::parseResponse($message);
     }
 
     /**
+     * @param string $message
      * @return JsonResponse|Response
      */
-    private function createBaseResponse()
+    private function createBaseResponse(string $message)
     {
-        $response = $this->toPsr7Response();
+        $response = $this->toPsr7Response($message);
         $headers = $response->getHeaders();
         $statusCode = $response->getStatusCode();
         $content = (string) $response->getBody();
