@@ -80,6 +80,17 @@ class AsyncRequest
     private $defaultHeaders = [];
 
     /**
+     * AsyncRequest constructor.
+     * @param array|null $serverVariables
+     */
+    public function __construct(array $serverVariables = null)
+    {
+        $this->withServerVariables(
+            $serverVariables ?: Request::createFromGlobals()->server->all()
+        );
+    }
+
+    /**
      * Define additional headers to be sent with the request.
      *
      * @param array $headers
@@ -524,9 +535,7 @@ class AsyncRequest
      */
     public static function create(array $serverVariables = null): self
     {
-        return (new self())->withServerVariables(
-            $serverVariables ?: Request::createFromGlobals()->server->all()
-        );
+        return new self($serverVariables);
     }
 
     /**
