@@ -4,14 +4,8 @@
 
 ## INSTALL
 
-composer.json
-
-```json
-{
-    "require-dev": {
-        "recca0120/async-testing": "^0.0.1"
-    }
-}
+```bash
+composer require recca0120/async-testing --dev
 ```
 
 ## Example
