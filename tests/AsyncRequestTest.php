@@ -2,8 +2,6 @@
 
 namespace Recca0120\AsyncTesting\Tests;
 
-use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Testing\TestResponse;
 use Recca0120\AsyncTesting\AsyncRequest;
 
 class AsyncRequestTest extends TestCase
@@ -14,50 +12,63 @@ class AsyncRequestTest extends TestCase
         AsyncRequest::setBinary(__DIR__.'/fixtures/artisan');
     }
 
-    public function test_handle_get(): void
+    public function test_it_should_return_test_response(): void
     {
-        $asyncRequest = new AsyncRequest();
-        $asyncRequest->from('/foo');
+        $asyncRequest = AsyncRequest::create()->from('/foo');
 
-        $response = $this->toTestResponse(
-            $asyncRequest->get('/', ['HTTP_FOO' => 'foo'])
-        );
-
-        $response
+        $asyncRequest->get('/')->wait()
             ->assertOk()
             ->assertSee('Hello World');
     }
 
-    public function test_handle_get_json(): void
+    public function test_it_should_return_previous_url()
     {
-        $asyncRequest = new AsyncRequest();
+        $from = '/foo';
+        $asyncRequest = AsyncRequest::create()->from($from);
 
-        $response = $this->toTestResponse(
-            $asyncRequest->json('GET', '/', [], ['HTTP_FOO' => 'foo'])
-        );
+        $asyncRequest->get('/set_from')->wait()
+            ->assertOk()
+            ->assertSee($from);
+    }
 
-        $response
+    public function test_it_should_has_db_connection_in_server_variables()
+    {
+        $asyncRequest = AsyncRequest::create(['CUSTOM' => 'custom']);
+
+        $asyncRequest->getJson('/server_variables')->wait()
+            ->assertOk()
+            ->assertJson([
+                'DB_CONNECTION' => 'testing',
+                'CUSTOM' => 'custom',
+            ]);
+    }
+
+    public function test_it_should_return_test_response_with_json_response(): void
+    {
+        $asyncRequest = AsyncRequest::create();
+
+        $asyncRequest->json('GET', '/')->wait()
             ->assertOk()
             ->assertJson(['content' => 'Hello World']);
     }
 
-    public function test_handle_not_found(): void
+    /**
+     * @dataProvider httpStatusCodeProvider
+     * @param int $code
+     */
+    public function test_it_should_assert_http_status_code(int $code): void
     {
-        $asyncRequest = new AsyncRequest();
-
-        $response = $this->toTestResponse(
-            $asyncRequest->get('/404', ['HTTP_FOO' => 'foo'])
-        );
-
-        $response->assertNotFound();
+        AsyncRequest::create()->get('/status_code/'.$code)->wait()
+            ->assertStatus($code);
     }
 
     /**
-     * @param PromiseInterface $promise
-     * @return TestResponse
+     * @return int[][]
      */
-    private function toTestResponse(PromiseInterface $promise): TestResponse
+    public function httpStatusCodeProvider(): array
     {
-        return $promise->wait(true);
+        return array_map(static function ($code) {
+            return [$code];
+        }, [401, 403, 404, 500, 504]);
     }
 }

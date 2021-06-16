@@ -84,12 +84,12 @@ class AsyncRequest
 
     /**
      * AsyncRequest constructor.
-     * @param array|null $serverVariables
+     * @param array $serverVariables
      */
-    public function __construct(array $serverVariables = null)
+    public function __construct(array $serverVariables = [])
     {
         $this->withServerVariables(
-            $serverVariables ?: Request::createFromGlobals()->server->all()
+            array_merge(Request::createFromGlobals()->server->all(), $serverVariables)
         );
     }
 
@@ -533,10 +533,10 @@ class AsyncRequest
     }
 
     /**
-     * @param array|null $serverVariables
+     * @param array $serverVariables
      * @return $this
      */
-    public static function create(array $serverVariables = null): self
+    public static function create(array $serverVariables = []): self
     {
         return new self($serverVariables);
     }
