@@ -10,11 +10,6 @@ use Illuminate\Http\Response;
 trait MakeResponse
 {
     /**
-     * @var string
-     */
-    private $message;
-
-    /**
      * @param string $message
      * @return \Illuminate\Testing\TestResponse|\Illuminate\Foundation\Testing\TestResponse
      */
@@ -24,25 +19,17 @@ trait MakeResponse
             ? \Illuminate\Testing\TestResponse::class
             : \Illuminate\Foundation\Testing\TestResponse::class;
 
-        return new $class($this->createBaseResponse($message));
+        return new $class($this->createBaseResponse(
+            Message::parseResponse($message)
+        ));
     }
 
     /**
-     * @param string $message
-     * @return Psr7Response
-     */
-    private function toPsr7Response(string $message): Psr7Response
-    {
-        return Message::parseResponse($message);
-    }
-
-    /**
-     * @param string $message
+     * @param Psr7Response $response
      * @return JsonResponse|Response
      */
-    private function createBaseResponse(string $message)
+    private function createBaseResponse(Psr7Response $response)
     {
-        $response = $this->toPsr7Response($message);
         $headers = $response->getHeaders();
         $statusCode = $response->getStatusCode();
         $content = (string) $response->getBody();
