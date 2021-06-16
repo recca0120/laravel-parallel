@@ -4,6 +4,8 @@ namespace Recca0120\AsyncTesting;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
+use GuzzleHttp\Promise\RejectedPromise;
+use InvalidArgumentException;
 use Recca0120\AsyncTesting\Concerns\MakeResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -519,8 +521,15 @@ class AsyncRequest
         return (new FulfilledPromise($this->createProcess($uri, $options)))
             ->then(function (Process $process) {
                 $process->wait();
+                $message = $process->getOutput();
 
-                return $this->toTestResponse($process->getOutput());
+                try {
+                    return $this->toTestResponse($message);
+                } catch (InvalidArgumentException $e) {
+                    return new RejectedPromise(new InvalidArgumentException(
+                        $e->getMessage().PHP_EOL.$message, $e->getCode(), $e
+                    ));
+                }
             });
     }
 
