@@ -7,7 +7,7 @@ use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
-trait MakeResponse
+trait MakesIlluminateResponses
 {
     /**
      * @param string $message
