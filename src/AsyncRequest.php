@@ -84,6 +84,15 @@ class AsyncRequest
     }
 
     /**
+     * @param int $times
+     * @return BatchRequest
+     */
+    public function times(int $times): BatchRequest
+    {
+        return new BatchRequest($this, $times);
+    }
+
+    /**
      * @param string $binary
      */
     public static function setBinary(string $binary): void

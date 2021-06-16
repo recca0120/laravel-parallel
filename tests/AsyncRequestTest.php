@@ -2,7 +2,10 @@
 
 namespace Recca0120\AsyncTesting\Tests;
 
+use GuzzleHttp\Promise\Utils;
+use Illuminate\Testing\TestResponse;
 use Recca0120\AsyncTesting\AsyncRequest;
+use Throwable;
 
 class AsyncRequestTest extends TestCase
 {
@@ -50,6 +53,18 @@ class AsyncRequestTest extends TestCase
         $asyncRequest->json('GET', '/')->wait()
             ->assertOk()
             ->assertJson(['content' => 'Hello World']);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function test_it_should_get_json_ten_times(): void
+    {
+        $batch = AsyncRequest::create()->times(10);
+
+        $responses = Utils::unwrap($batch->json('GET', '/'));
+
+        self::assertCount(10, $responses);
     }
 
     /**
