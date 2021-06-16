@@ -22,6 +22,18 @@ $laravel = new class() {
                 ? response()->json(['content' => 'Hello World'])
                 : 'Hello World';
         });
+
+        $router->get('/set_from', function () {
+            return app('session')->previousUrl();
+        });
+
+        $router->get('/server_variables', function () {
+            return Request::capture()->server->all();
+        });
+
+        $router->get('/status_code/{code}', function ($code) {
+            abort($code);
+        });
     }
 
     public function getApplication()

@@ -30,7 +30,7 @@ class AsyncCallCommandTest extends TestCase
         parent::setUp();
     }
 
-    public function test_execute_call(): void
+    public function test_it_should_execute_call_method(): void
     {
         $response = $this->givenResponse([
             'uri' => '/auth/login',
@@ -50,7 +50,7 @@ class AsyncCallCommandTest extends TestCase
     /**
      * @dataProvider hasBodyProvider
      */
-    public function test_execute_uri_with_body($method): void
+    public function test_it_should_execute_other_methods_with_post_body($method): void
     {
         $response = $this->givenResponse([
             'uri' => '/auth/login',

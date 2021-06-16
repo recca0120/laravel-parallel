@@ -16,7 +16,7 @@ trait MakeResponse
 
     /**
      * @param string $message
-     * @return \Illuminate\Testing\TestResponse
+     * @return \Illuminate\Testing\TestResponse|\Illuminate\Foundation\Testing\TestResponse
      */
     public function toTestResponse(string $message)
     {
