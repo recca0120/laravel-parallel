@@ -23,7 +23,7 @@ $laravel = new class() {
                 : 'Hello World';
         });
 
-        $router->get('/set_from', function () {
+        $router->get('/previous_url', function () {
             return app('session')->previousUrl();
         });
 

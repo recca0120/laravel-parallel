@@ -26,7 +26,7 @@ class AsyncRequestTest extends TestCase
         $from = '/foo';
         $asyncRequest = AsyncRequest::create()->from($from);
 
-        $asyncRequest->get('/set_from')->wait()
+        $asyncRequest->get('/previous_url')->wait()
             ->assertOk()
             ->assertSee($from);
     }
