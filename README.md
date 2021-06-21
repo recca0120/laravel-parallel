@@ -1,71 +1,199 @@
-## Screenshot
+# Laravel Async Testing
 
-![Screenshot](https://raw.githubusercontent.com/recca0120/async-testing/master/examples/screenshot.gif)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/recca0120/async-testing.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
+![Tests](https://github.com/recca0120/async-testing/workflows/tests/badge.svg)
+[![Total Downloads](https://img.shields.io/packagist/dt/recca0120/async-testing.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
 
-## INSTALL
+> this package can help you to test race condition in Laravel Feature Test
+
+![Async Testing](screenshots/async-testing.png "Async Testing")
+
+## Requirements
+
+- **Laravel** versions 5.7, 6.x, 7.x and 8.x
+- **PHP** 7.0 or greater
+
+## Installation
+
+Install the package with composer:
 
 ```bash
 composer require recca0120/async-testing --dev
 ```
 
-## Example
+## Usage
 
-routes/web.php
+1. set a real database in phpunit.xml
 
-```php
-Route::get('/', function () {
-    sleep(10);
+```xml
 
-    return view('welcome');
-});
+<phpunit>
+    <php>
+        <!-- DB_CONNECTION can't be %memory% -->
+        <server name="DB_CONNECTION" value="sqlite"/>
+        <server name="DB_DATABASE" value="database/database.sqlite"/>
+    </php>
+</phpunit>
 ```
 
-tests/Feature/ExampleTest.php
+2. make a product migration
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateProductsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('products', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->integer('quantity')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('products');
+    }
+}
+
+
+```
+
+3. define product model `App\Models\Product`
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * Class Product.
+ * @property int id
+ * @property string name
+ * @property int quantity
+ * @package App\Models
+ * @mixin Builder
+ */
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name', 'quantity'];
+
+    protected $casts = ['quantity' => 'int'];
+}
+
+```
+
+4. define router in `routes/web.php`
+
+```php
+<?php
+
+use App\Models\Product;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/product/{productId}', function ($productId) {
+    return Product::findOrFail($productId);
+});
+
+Route::post('/product/{productId}', function ($productId) {
+    $product = Product::findOrFail($productId);
+    if ($product->quantity > 0) {
+        // wrong, it will make test fail
+        // $product->fill(['quantity' => $product->quantity - 1])->save();
+
+        // correct
+        $product->where('id', $product->id)
+            ->where('quantity', '>', 0)
+            ->update(['quantity' => DB::raw('quantity - 1')]);
+    }
+
+    return $product->fresh();
+});
+
+```
+
+5. testing
 
 ```php
 <?php
 
 namespace Tests\Feature;
 
-use GuzzleHttp\Promise\Utils;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Product;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Recca0120\AsyncTesting\AsyncRequest;
 use Tests\TestCase;
 
-class ExampleTest extends TestCase
+class RaceConditionTest extends TestCase
 {
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function test_example()
-    {
-        $startAt = microtime(true);
-        $asyncRequest = $this->app->get(AsyncRequest::class);
-        $responses = Utils::unwrap(array_map(static function () use ($asyncRequest) {
-            return $asyncRequest->get('/');
-        }, range(0, 100)));
+    use DatabaseMigrations;
 
-        foreach ($responses as $response) {
-            $response->assertOk();
+    private $product;
+    private $quantity = 10;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->product = Product::create(['name' => 'test', 'quantity' => $this->quantity]);
+    }
+
+    public function test_race_condition()
+    {
+        $asyncRequest = $this->app->make(AsyncRequest::class);
+
+        $promises = collect();
+        for ($i = 0; $i < $this->quantity; $i++) {
+            // you will get \GuzzleHttp\Promise\PromiseInterface
+            $promise = $asyncRequest->post('/product/'.$this->product->id);
+            $promises->add($promise);
         }
-        dump(microtime(true) - $startAt);
+        // you need wait response
+        $promises->map->wait()->each->assertOk();
+
+        $this->get('/product/'.$this->product->id)
+            ->assertOk()
+            ->assertJsonPath('quantity', 0);
+    }
+
+    public function test_use_times_to_test_race_condition()
+    {
+        $asyncRequest = $this->app->make(AsyncRequest::class);
+
+        $promises = collect($asyncRequest->times(10)->post('/product/'.$this->product->id));
+
+        // you need wait response
+        $promises->map->wait()->each->assertOk();
+
+        $this->get('/product/'.$this->product->id)
+            ->assertOk()
+            ->assertJsonPath('quantity', 0);
     }
 }
 ```
 
-## RESULT
+## License
 
-```bash
-Testing started at 3:03 下午 ...
-PHPUnit 9.5.5 by Sebastian Bergmann and contributors.
-
-11.854576826096
-
-
-Time: 00:11.981, Memory: 30.00 MB
-
-OK (1 test, 101 assertions)
-Process finished with exit code 0
-```
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
