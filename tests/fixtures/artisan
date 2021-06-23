@@ -34,6 +34,24 @@ $laravel = new class() {
         $router->get('/status_code/{code}', function ($code) {
             abort($code);
         });
+
+        $router->get('/echo', function () {
+            echo 'echo foo';
+
+            return 'bar';
+        });
+
+        $router->get('/dump', function () {
+            dump('dump(foo)');
+
+            return 'bar';
+        });
+
+        $router->get('/dd', function () {
+            dd('dd(foo)');
+
+            return 'bar';
+        });
     }
 
     public function getApplication()

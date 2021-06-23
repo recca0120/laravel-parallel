@@ -81,7 +81,7 @@ class AsyncRequestCommand extends Command
             ->handleFollowRedirects($input)
             ->handleWithCredentials($input);
 
-        $response = $this->getTestResponse($input);
+        $response = $this->makeTestResponse($input);
         $output->write($this->toMessage($response->baseResponse));
 
         return $response->isSuccessful() ? 0 : 1;
@@ -91,7 +91,7 @@ class AsyncRequestCommand extends Command
      * @param InputInterface $input
      * @return \Illuminate\Testing\TestResponse
      */
-    private function getTestResponse(InputInterface $input)
+    private function makeTestResponse(InputInterface $input)
     {
         $method = strtolower($input->getOption('method') ?: 'get');
         $uri = $input->getArgument('uri');
