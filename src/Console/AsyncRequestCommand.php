@@ -4,10 +4,13 @@ namespace Recca0120\AsyncTesting\Console;
 
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response as Psr7Response;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class AsyncRequestCommand extends Command
 {
     use MakesHttpRequests;
+    use SerializesAndRestoresModelIdentifiers;
 
     /**
      * @var string
@@ -65,6 +69,8 @@ class AsyncRequestCommand extends Command
         $this->addOption('followRedirects', null, InputOption::VALUE_REQUIRED);
         $this->addOption('withCredentials', null, InputOption::VALUE_REQUIRED);
         $this->addOption('disableCookieEncryption', null, InputOption::VALUE_REQUIRED);
+        $this->addOption('user', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('guard', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -79,7 +85,8 @@ class AsyncRequestCommand extends Command
             ->handleWithUnencryptedCookies($input)
             ->handleServerVariables($input)
             ->handleFollowRedirects($input)
-            ->handleWithCredentials($input);
+            ->handleWithCredentials($input)
+            ->handleAuthenticatable($input);
 
         $response = $this->makeTestResponse($input);
         $output->write($this->toMessage($response->baseResponse));
@@ -233,5 +240,22 @@ class AsyncRequestCommand extends Command
         }
 
         return $headers;
+    }
+
+    private function handleAuthenticatable(InputInterface $input): self
+    {
+        $serialized = $input->getOption('user');
+
+        if (empty($serialized)) {
+            return $this;
+        }
+
+        $user = $this->getRestoredPropertyValue(
+            unserialize(base64_decode($serialized), [Authenticatable::class, ModelIdentifier::class])
+        );
+
+        $this->app['auth']->guard($input->getOption('guard'))->setUser($user);
+
+        return $this;
     }
 }

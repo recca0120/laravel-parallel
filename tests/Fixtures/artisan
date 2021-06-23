@@ -52,6 +52,15 @@ $laravel = new class() {
 
             return 'bar';
         });
+
+        $router->middleware('auth')->get('/user', function (Request $request) {
+            $user = $request->user();
+            $reflect = new ReflectionClass($user);
+            $property = $reflect->getProperty('attributes');
+            $property->setAccessible(true);
+
+            return response()->json($property->getValue($user));
+        });
     }
 
     public function getApplication()

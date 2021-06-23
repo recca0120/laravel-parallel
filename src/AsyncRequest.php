@@ -6,6 +6,7 @@ use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\RejectedPromise;
 use InvalidArgumentException;
+use Recca0120\AsyncTesting\Concerns\InteractsWithAuthentication;
 use Recca0120\AsyncTesting\Concerns\MakesHttpRequests;
 use Recca0120\AsyncTesting\Concerns\MakesIlluminateResponses;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,7 @@ use Symfony\Component\Process\Process;
 class AsyncRequest
 {
     use MakesHttpRequests;
+    use InteractsWithAuthentication;
     use MakesIlluminateResponses;
 
     /**
@@ -66,6 +68,8 @@ class AsyncRequest
             'followRedirects' => $this->followRedirects,
             'withCredentials' => $this->withCredentials,
             'disableCookieEncryption' => ! $this->encryptCookies,
+            'user' => $this->user,
+            'guard' => $this->guard,
         ]);
 
         return (new FulfilledPromise($this->createProcess($uri, $options)))
