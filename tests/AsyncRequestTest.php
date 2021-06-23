@@ -107,10 +107,40 @@ class AsyncRequestTest extends TestCase
     public function test_it_should_show_generic_user_info(): void
     {
         $user = new GenericUser(['email' => 'recca0120@gmail.com']);
-        // $user = new User(['email' => 'recca0120@gmail.com']);
         $asyncRequest = AsyncRequest::create()->actingAs($user);
 
-        $response = $asyncRequest->get('/user')->wait();
+        $response = $asyncRequest->postJson('/user')->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_show_eloquent_user_info(): void
+    {
+        $asyncRequest = AsyncRequest::create()->actingAs(User::first(), 'api');
+
+        $response = $asyncRequest->postJson('/api/user')->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_login_and_get_user_info(): void
+    {
+        $asyncRequest = AsyncRequest::create();
+
+        $response = $asyncRequest->postJson('/auth/login', [
+            'email' => 'recca0120@gmail.com',
+            'password' => 'password',
+        ])->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_get_user_info_with_token(): void
+    {
+        $token = '6Uv0zov7V2dAk5wWE45HHHhz05gpsmw2';
+        $asyncRequest = AsyncRequest::create()->withToken($token);
+
+        $response = $asyncRequest->post('/api/user')->wait();
 
         $response->assertJsonPath('email', 'recca0120@gmail.com');
     }

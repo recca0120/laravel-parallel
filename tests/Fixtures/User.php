@@ -6,5 +6,5 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    protected $fillable = ['email'];
+    protected $fillable = ['email', 'password', 'api_token'];
 }
