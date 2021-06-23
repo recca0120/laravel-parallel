@@ -71,7 +71,7 @@ class AsyncRequest
         return (new FulfilledPromise($this->createProcess($uri, $options)))
             ->then(function (Process $process) {
                 $process->wait();
-                $message = $process->getOutput();
+                $message = CaptureOutput::capture($process->getOutput());
 
                 try {
                     return $this->toTestResponse($message);
@@ -116,14 +116,14 @@ class AsyncRequest
      */
     private function createProcess(string $uri, array $options): Process
     {
-        $command = [$this->getPhpBinary(), $this->getBinary(), 'async:request', $uri];
-        $process = new Process(
-            array_merge($command, $options),
-            null,
-            $this->serverVariables,
-            null,
-            86400
-        );
+        $command = array_merge([
+            $this->getPhpBinary(),
+            $this->getBinary(),
+            'async:request',
+            $uri,
+        ], $options, ['--ansi']);
+
+        $process = new Process($command, null, $this->serverVariables, null, 86400);
         $process->start();
 
         return $process;

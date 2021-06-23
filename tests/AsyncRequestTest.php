@@ -3,7 +3,6 @@
 namespace Recca0120\AsyncTesting\Tests;
 
 use GuzzleHttp\Promise\Utils;
-use Illuminate\Testing\TestResponse;
 use Recca0120\AsyncTesting\AsyncRequest;
 use Throwable;
 
@@ -19,40 +18,40 @@ class AsyncRequestTest extends TestCase
     {
         $asyncRequest = AsyncRequest::create()->from('/foo');
 
-        $asyncRequest->get('/')->wait()
-            ->assertOk()
-            ->assertSee('Hello World');
+        $response = $asyncRequest->get('/')->wait();
+
+        $response->assertOk()->assertSee('Hello World');
     }
 
-    public function test_it_should_return_previous_url()
+    public function test_it_should_return_previous_url(): void
     {
         $from = '/foo';
         $asyncRequest = AsyncRequest::create()->from($from);
 
-        $asyncRequest->get('/previous_url')->wait()
-            ->assertOk()
-            ->assertSee($from);
+        $response = $asyncRequest->get('/previous_url')->wait();
+
+        $response->assertOk()->assertSee($from);
     }
 
-    public function test_it_should_has_db_connection_in_server_variables()
+    public function test_it_should_has_db_connection_in_server_variables(): void
     {
         $asyncRequest = AsyncRequest::create(['CUSTOM' => 'custom']);
 
-        $asyncRequest->getJson('/server_variables')->wait()
-            ->assertOk()
-            ->assertJson([
-                'DB_CONNECTION' => 'testing',
-                'CUSTOM' => 'custom',
-            ]);
+        $response = $asyncRequest->getJson('/server_variables')->wait();
+
+        $response->assertOk()->assertJson([
+            'DB_CONNECTION' => 'testing',
+            'CUSTOM' => 'custom',
+        ]);
     }
 
     public function test_it_should_return_test_response_with_json_response(): void
     {
         $asyncRequest = AsyncRequest::create();
 
-        $asyncRequest->json('GET', '/')->wait()
-            ->assertOk()
-            ->assertJson(['content' => 'Hello World']);
+        $response = $asyncRequest->json('GET', '/')->wait();
+
+        $response->assertOk()->assertJson(['content' => 'Hello World']);
     }
 
     /**
@@ -73,8 +72,34 @@ class AsyncRequestTest extends TestCase
      */
     public function test_it_should_assert_http_status_code(int $code): void
     {
-        AsyncRequest::create()->get('/status_code/'.$code)->wait()
-            ->assertStatus($code);
+        $response = AsyncRequest::create()->get('/status_code/'.$code)->wait();
+
+        $response->assertStatus($code);
+    }
+
+    public function test_it_should_show_echo_in_console(): void
+    {
+        $this->expectOutputRegex('/echo foo/');
+
+        $response = AsyncRequest::create()->get('/echo')->wait();
+
+        $response->assertSee('bar');
+    }
+
+    public function test_it_should_show_dump_in_console(): void
+    {
+        $this->expectOutputRegex('/dump\(foo\)/');
+
+        $response = AsyncRequest::create()->get('/dump')->wait();
+
+        $response->assertSee('bar');
+    }
+
+    public function test_it_should_show_dd_in_console(): void
+    {
+        $this->expectOutputRegex('/dd\(foo\)/');
+
+        AsyncRequest::create()->get('/dd')->wait();
     }
 
     /**

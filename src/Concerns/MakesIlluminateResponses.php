@@ -19,9 +19,9 @@ trait MakesIlluminateResponses
             ? \Illuminate\Testing\TestResponse::class
             : \Illuminate\Foundation\Testing\TestResponse::class;
 
-        return new $class($this->createBaseResponse(
-            Message::parseResponse($message)
-        ));
+        return new $class(
+            $this->createBaseResponse(Message::parseResponse($message))
+        );
     }
 
     /**
