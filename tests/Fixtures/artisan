@@ -8,6 +8,7 @@ use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
 use Recca0120\AsyncTesting\Tests\Fixtures\PrepareDatabase;
 use Symfony\Component\Console\Application;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -26,47 +27,47 @@ $laravel = new class() {
 
     protected function defineRoutes($router): void
     {
-        $router->get('/', function (Request $request) {
+        $router->middleware('web')->get('/', function (Request $request) {
             return $request->isJson()
                 ? response()->json(['content' => 'Hello World'])
                 : 'Hello World';
         });
 
-        $router->get('/previous_url', function () {
+        $router->middleware('web')->get('/previous_url', function () {
             return app('session')->previousUrl();
         });
 
-        $router->get('/server_variables', function () {
+        $router->middleware('web')->get('/server_variables', function () {
             return Request::capture()->server->all();
         });
 
-        $router->get('/status_code/{code}', function ($code) {
+        $router->middleware('web')->get('/status_code/{code}', function ($code) {
             abort($code);
         });
 
-        $router->get('/echo', function () {
+        $router->middleware('web')->get('/echo', function () {
             echo 'echo foo';
 
             return 'bar';
         });
 
-        $router->get('/dump', function () {
+        $router->middleware('web')->get('/dump', function () {
             dump('dump(foo)');
 
             return 'bar';
         });
 
-        $router->get('/dd', function () {
+        $router->middleware('web')->get('/dd', function () {
             dd('dd(foo)');
 
             return 'bar';
         });
 
-        $router->post('/auth/login', function (Request $request) {
+        $router->middleware('web')->post('/auth/login', function (Request $request) {
             return Auth::attempt($request->only('email', 'password')) ? Auth::user() : [];
         });
 
-        $router->middleware('auth')->post('/user', function (Request $request) {
+        $router->middleware('web', 'auth')->post('/user', function (Request $request) {
             $user = $request->user();
             $reflect = new ReflectionClass($user);
             $property = $reflect->getProperty('attributes');
@@ -75,9 +76,26 @@ $laravel = new class() {
             return response()->json($property->getValue($user));
         });
 
+        $router->middleware('web')->patch('/session', function (Request $request) {
+            Session::put('session', $request->get('session'));
+
+            return ['success' => true];
+        });
+
+        $router->middleware('web')->get('/session', function () {
+            return ['session' => Session::get('session')];
+        });
+
+        $router->middleware('web')->get('/sleep', function () {
+            sleep(random_int(1, 3));
+
+            return ['success' => true];
+        });
+
         $router->middleware('auth:api')->post('/api/user', function (Request $request) {
             return response()->json($request->user());
         });
+
     }
 
     public function getApplication()

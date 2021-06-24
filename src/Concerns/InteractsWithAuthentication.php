@@ -9,8 +9,13 @@ trait InteractsWithAuthentication
 {
     use SerializesAndRestoresModelIdentifiers;
 
+    /**
+     * @var string|null
+     */
     protected $guard;
-
+    /**
+     * @var string|null
+     */
     protected $user;
 
     /**
