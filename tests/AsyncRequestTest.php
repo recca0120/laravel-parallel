@@ -42,7 +42,7 @@ class AsyncRequestTest extends TestCase
         $response = $asyncRequest->getJson('/server_variables')->wait();
 
         $response->assertOk()->assertJson([
-            'DB_CONNECTION' => 'testing',
+            'DB_CONNECTION' => 'testbench',
             'CUSTOM' => 'custom',
         ]);
     }
@@ -143,6 +143,26 @@ class AsyncRequestTest extends TestCase
         $response = $asyncRequest->post('/api/user')->wait();
 
         $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_get_session_value(): void
+    {
+        $sessionValue = uniqid('session_', true);
+        $asyncRequest = AsyncRequest::create();
+        $asyncRequest->patch('/session?session='.$sessionValue)->wait();
+
+        $response = $asyncRequest->getJson('/session')->wait();
+
+        $response->assertJsonPath('session', $sessionValue);
+    }
+
+    public function test_it_should_finish_10_requests_in_5_seconds(): void
+    {
+        $startTime = microtime(true);
+
+        Utils::settle(AsyncRequest::create()->times(10)->get('/sleep'))->wait();
+
+        self::assertLessThan(5, microtime(true) - $startTime);
     }
 
     /**

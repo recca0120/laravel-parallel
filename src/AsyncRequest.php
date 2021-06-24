@@ -2,10 +2,8 @@
 
 namespace Recca0120\AsyncTesting;
 
-use GuzzleHttp\Promise\FulfilledPromise;
+use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Promise\RejectedPromise;
-use InvalidArgumentException;
 use Recca0120\AsyncTesting\Concerns\InteractsWithAuthentication;
 use Recca0120\AsyncTesting\Concerns\MakesHttpRequests;
 use Recca0120\AsyncTesting\Concerns\MakesIlluminateResponses;
@@ -72,19 +70,23 @@ class AsyncRequest
             'guard' => $this->guard,
         ]);
 
-        return (new FulfilledPromise($this->createProcess($uri, $options)))
-            ->then(function (Process $process) {
-                $process->wait();
-                $message = CaptureOutput::capture($process->getOutput());
+        $process = $this->createProcess($uri, $options);
+        $promise = new Promise(function () use ($process) {
+            $process->wait();
+        });
+        $process->start(function () use ($process, $promise) {
+            $promise->resolve($process);
+        });
 
-                try {
-                    return $this->toTestResponse($message);
-                } catch (InvalidArgumentException $e) {
-                    return new RejectedPromise(new InvalidArgumentException(
-                        $e->getMessage().PHP_EOL.$message, $e->getCode(), $e
-                    ));
-                }
-            });
+        return $promise->then(function (Process $process) {
+            $response = $this->toTestResponse(CaptureOutput::capture($process->getOutput()));
+            $cookies = $response->headers->getCookies();
+            foreach ($cookies as $cookie) {
+                $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
+            }
+
+            return $response;
+        });
     }
 
     /**
@@ -127,10 +129,7 @@ class AsyncRequest
             $uri,
         ], $options, ['--ansi']);
 
-        $process = new Process($command, null, $this->serverVariables, null, 86400);
-        $process->start();
-
-        return $process;
+        return new Process($command, null, $this->serverVariables, null, 86400);
     }
 
     /**
