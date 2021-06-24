@@ -5,15 +5,24 @@ use Illuminate\Http\Request;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
 use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
+use Recca0120\AsyncTesting\Tests\Fixtures\PrepareDatabase;
 use Symfony\Component\Console\Application;
+use Illuminate\Support\Facades\Auth;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $laravel = new class() {
     use CreatesApplication;
+    use PrepareDatabase;
     use HandlesRoutes;
 
     private $app;
+
+    protected function getEnvironmentSetUp($app)
+    {
+        $this->databaseSetUp($app);
+    }
+
 
     protected function defineRoutes($router): void
     {
@@ -51,6 +60,23 @@ $laravel = new class() {
             dd('dd(foo)');
 
             return 'bar';
+        });
+
+        $router->post('/auth/login', function (Request $request) {
+            return Auth::attempt($request->only('email', 'password')) ? Auth::user() : [];
+        });
+
+        $router->middleware('auth')->post('/user', function (Request $request) {
+            $user = $request->user();
+            $reflect = new ReflectionClass($user);
+            $property = $reflect->getProperty('attributes');
+            $property->setAccessible(true);
+
+            return response()->json($property->getValue($user));
+        });
+
+        $router->middleware('auth:api')->post('/api/user', function (Request $request) {
+            return response()->json($request->user());
         });
     }
 

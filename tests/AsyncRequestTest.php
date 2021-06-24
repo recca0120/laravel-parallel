@@ -3,7 +3,9 @@
 namespace Recca0120\AsyncTesting\Tests;
 
 use GuzzleHttp\Promise\Utils;
+use Illuminate\Auth\GenericUser;
 use Recca0120\AsyncTesting\AsyncRequest;
+use Recca0120\AsyncTesting\Tests\Fixtures\User;
 use Throwable;
 
 class AsyncRequestTest extends TestCase
@@ -11,7 +13,7 @@ class AsyncRequestTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        AsyncRequest::setBinary(__DIR__.'/fixtures/artisan');
+        AsyncRequest::setBinary(__DIR__.'/Fixtures/artisan');
     }
 
     public function test_it_should_return_test_response(): void
@@ -100,6 +102,47 @@ class AsyncRequestTest extends TestCase
         $this->expectOutputRegex('/dd\(foo\)/');
 
         AsyncRequest::create()->get('/dd')->wait();
+    }
+
+    public function test_it_should_show_generic_user_info(): void
+    {
+        $user = new GenericUser(['email' => 'recca0120@gmail.com']);
+        $asyncRequest = AsyncRequest::create()->actingAs($user);
+
+        $response = $asyncRequest->postJson('/user')->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_show_eloquent_user_info(): void
+    {
+        $asyncRequest = AsyncRequest::create()->actingAs(User::first(), 'api');
+
+        $response = $asyncRequest->postJson('/api/user')->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_login_and_get_user_info(): void
+    {
+        $asyncRequest = AsyncRequest::create();
+
+        $response = $asyncRequest->postJson('/auth/login', [
+            'email' => 'recca0120@gmail.com',
+            'password' => 'password',
+        ])->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
+    }
+
+    public function test_it_should_get_user_info_with_token(): void
+    {
+        $token = '6Uv0zov7V2dAk5wWE45HHHhz05gpsmw2';
+        $asyncRequest = AsyncRequest::create()->withToken($token);
+
+        $response = $asyncRequest->post('/api/user')->wait();
+
+        $response->assertJsonPath('email', 'recca0120@gmail.com');
     }
 
     /**

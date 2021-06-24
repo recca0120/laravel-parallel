@@ -25,11 +25,6 @@ class AsyncCallCommandTest extends TestCase
         'password' => 'password',
     ];
 
-    public function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function test_it_should_execute_call_method(): void
     {
         $response = $this->givenResponse([
@@ -44,7 +39,8 @@ class AsyncCallCommandTest extends TestCase
             '--followRedirects' => false,
         ]);
 
-        self::assertJsonStringEqualsJsonString(json_encode($this->user), (string) $response->getBody());
+        $user = json_decode((string) $response->getBody(), true);
+        self::assertEquals('recca0120@gmail.com', $user['email']);
     }
 
     /**
@@ -58,23 +54,15 @@ class AsyncCallCommandTest extends TestCase
             '--data' => json_encode(['email' => $this->user['email'], 'password' => $this->user['password']]),
         ]);
 
-        self::assertJsonStringEqualsJsonString(json_encode($this->user), (string) $response->getBody());
+        $user = json_decode((string) $response->getBody(), true);
+        self::assertEquals('recca0120@gmail.com', $user['email']);
     }
 
     public function hasBodyProvider(): array
     {
-        return [
-            ['postJson'],
-            ['post'],
-            ['put'],
-            ['putJson'],
-            ['patch'],
-            ['patchJson'],
-            ['options'],
-            ['optionsJson'],
-            ['delete'],
-            ['deleteJson'],
-        ];
+        return array_reduce(['post', 'put', 'patch', 'options', 'delete'], function ($acc, $method) {
+            return array_merge($acc, [[$method], [$method.'Json']]);
+        }, []);
     }
 
     /**
