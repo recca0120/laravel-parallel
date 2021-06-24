@@ -139,12 +139,13 @@ class AsyncRequest
      */
     private static function toCommandOptions(array $data): array
     {
+        $data = array_merge(['parameters' => '[]'], array_filter($data, static function ($value) {
+            return ! empty($value);
+        }));
+
         $options = [];
         foreach ($data as $key => $value) {
-            $value = is_array($value) ? json_encode($value) : $value;
-            if (! empty($value)) {
-                $options[] = '--'.$key.'='.$value;
-            }
+            $options[] = '--'.$key.'='.(is_array($value) ? json_encode($value) : $value);
         }
 
         return $options;

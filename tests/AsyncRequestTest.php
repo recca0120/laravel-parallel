@@ -127,7 +127,7 @@ class AsyncRequestTest extends TestCase
     {
         $asyncRequest = AsyncRequest::create();
 
-        $response = $asyncRequest->postJson('/auth/login', [
+        $response = $asyncRequest->post('/auth/login', [
             'email' => 'recca0120@gmail.com',
             'password' => 'password',
         ])->wait();
