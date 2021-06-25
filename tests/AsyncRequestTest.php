@@ -63,7 +63,10 @@ class AsyncRequestTest extends TestCase
     {
         $batch = AsyncRequest::create()->times(10);
 
-        $responses = Utils::unwrap($batch->json('GET', '/'));
+        $responses = [];
+        foreach ($batch->json('GET', '/') as $promise) {
+            $responses[] = $promise->wait();
+        }
 
         self::assertCount(10, $responses);
     }
@@ -160,7 +163,9 @@ class AsyncRequestTest extends TestCase
     {
         $startTime = microtime(true);
 
-        Utils::settle(AsyncRequest::create()->times(10)->get('/sleep'))->wait();
+        foreach (AsyncRequest::create()->times(10)->get('/sleep') as $promise) {
+            $promise->wait();
+        }
 
         self::assertLessThan(5, microtime(true) - $startTime);
     }
