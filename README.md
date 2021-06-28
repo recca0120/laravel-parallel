@@ -23,7 +23,7 @@ composer require recca0120/async-testing --dev
 
 ## Usage
 
-1. set a real database in phpunit.xml
+check phpunit.xml
 
 ```xml
 
@@ -32,11 +32,37 @@ composer require recca0120/async-testing --dev
         <!-- DB_CONNECTION can't be %memory% -->
         <server name="DB_CONNECTION" value="sqlite"/>
         <server name="DB_DATABASE" value="database/database.sqlite"/>
+        <!-- if you need to test session, session driver must be file -->
+        <server name="SESSION_DRIVER" value="file"/>
     </php>
 </phpunit>
 ```
 
-2. make a product migration
+create an async request instance
+
+```php
+$asyncRequest = $this->app(\Recca0120\AsyncTesting\AsyncRequest::class);
+// or
+$asyncRequest = new \Recca0120\AsyncTesting\AsyncRequest();
+// or
+$asyncRequest = \Recca0120\AsyncTesting\AsyncRequest::create();
+```
+
+
+send a request to Laravel
+
+```php
+// it will return \GuzzleHttp\Promise\Promise
+$promise = $asyncRequest->get('/');
+// call wait will return Laravel TestResponse
+$response = $promise->wait();
+// assert
+$response->assertOk();
+```
+
+# Example
+
+product migration
 
 ```php
 <?php
@@ -72,11 +98,9 @@ class CreateProductsTable extends Migration
         Schema::dropIfExists('products');
     }
 }
-
-
 ```
 
-3. define product model `App\Models\Product`
+product model `App\Models\Product`
 
 ```php
 <?php
@@ -103,10 +127,9 @@ class Product extends Model
 
     protected $casts = ['quantity' => 'int'];
 }
-
 ```
 
-4. define router in `routes/web.php`
+router
 
 ```php
 <?php
@@ -132,10 +155,9 @@ Route::post('/product/{productId}', function ($productId) {
 
     return $product->fresh();
 });
-
 ```
 
-5. testing
+testing
 
 ```php
 <?php
