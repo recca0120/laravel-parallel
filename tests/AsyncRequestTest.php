@@ -2,7 +2,6 @@
 
 namespace Recca0120\AsyncTesting\Tests;
 
-use GuzzleHttp\Promise\Utils;
 use Illuminate\Auth\GenericUser;
 use Recca0120\AsyncTesting\AsyncRequest;
 use Recca0120\AsyncTesting\Tests\Fixtures\User;

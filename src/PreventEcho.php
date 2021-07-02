@@ -2,18 +2,18 @@
 
 namespace Recca0120\AsyncTesting;
 
-class CaptureOutput
+class PreventEcho
 {
     /**
      * @var callable|null
      */
-    private static $printClosure;
+    private static $echoClosure;
 
     /**
      * @param string $output
      * @return string
      */
-    public static function capture(string $output): string
+    public static function prevent(string $output): string
     {
         preg_match('/^(?<output>.*)(?<message>HTTP\/.*\s[\d]{3}([^\r\n]*)\r\n.*)/s', $output, $matches);
 
@@ -21,7 +21,7 @@ class CaptureOutput
             $matches = ['output' => $output, 'message' => "HTTP/1.1 200 OK\r\n\r\n"];
         }
 
-        self::printOutput($matches['output']);
+        self::echoOutput($matches['output']);
 
         return $matches['message'];
     }
@@ -29,18 +29,18 @@ class CaptureOutput
     /**
      * @param callable $callable
      */
-    public static function printUsing(callable $callable): void
+    public static function echoUsing(callable $callable): void
     {
-        self::$printClosure = $callable;
+        self::$echoClosure = $callable;
     }
 
     /**
      * @param string $output
      */
-    private static function printOutput(string $output): void
+    private static function echoOutput(string $output): void
     {
-        if (self::$printClosure !== null) {
-            (self::$printClosure)($output);
+        if (self::$echoClosure !== null) {
+            (self::$echoClosure)($output);
         } else {
             echo $output;
         }

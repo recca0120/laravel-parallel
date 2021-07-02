@@ -79,7 +79,7 @@ class AsyncRequest
         });
 
         return $promise->then(function (Process $process) {
-            $response = $this->toTestResponse(CaptureOutput::capture($process->getOutput()));
+            $response = $this->toTestResponse(PreventEcho::prevent($process->getOutput()));
             $cookies = $response->headers->getCookies();
             foreach ($cookies as $cookie) {
                 $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
