@@ -2,13 +2,12 @@
 
 namespace Recca0120\AsyncTesting;
 
-use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use Recca0120\AsyncTesting\Concerns\InteractsWithAuthentication;
 use Recca0120\AsyncTesting\Concerns\MakesHttpRequests;
 use Recca0120\AsyncTesting\Concerns\MakesIlluminateResponses;
+use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 class AsyncRequest
@@ -16,16 +15,6 @@ class AsyncRequest
     use MakesHttpRequests;
     use InteractsWithAuthentication;
     use MakesIlluminateResponses;
-
-    /**
-     * @var string|null
-     */
-    private $phpBinary;
-
-    /**
-     * @var string|null
-     */
-    private static $binary = 'artisan';
 
     /**
      * AsyncRequest constructor.
@@ -52,33 +41,26 @@ class AsyncRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        $options = self::toCommandOptions([
-            'method' => $method,
-            'parameters' => $parameters,
-            'cookies' => $cookies,
-            'files' => $files,
-            'server' => $server,
-            'content' => $content,
-            'withoutMiddleware' => $this->withoutMiddleware,
-            'withMiddleware' => $this->withMiddleware,
-            'withUnencryptedCookies' => $this->unencryptedCookies,
-            // 'serverVariables' => $this->serverVariables,
-            'followRedirects' => $this->followRedirects,
-            'withCredentials' => $this->withCredentials,
-            'disableCookieEncryption' => ! $this->encryptCookies,
-            'user' => $this->user,
-            'guard' => $this->guard,
-        ]);
+        $deferred = new ArtisanDeferred(AsyncRequestCommand::COMMAND_NAME, [
+            $uri,
+            '--method' => $method,
+            '--parameters' => $parameters,
+            '--cookies' => $cookies,
+            '--files' => $files,
+            '--server' => $server,
+            '--content' => $content,
+            '--withoutMiddleware' => $this->withoutMiddleware,
+            '--withMiddleware' => $this->withMiddleware,
+            '--withUnencryptedCookies' => $this->unencryptedCookies,
+            // '--serverVariables' => $this->serverVariables,
+            '--followRedirects' => $this->followRedirects,
+            '--withCredentials' => $this->withCredentials,
+            '--disableCookieEncryption' => ! $this->encryptCookies,
+            '--user' => $this->user,
+            '--guard' => $this->guard,
+        ], $this->serverVariables);
 
-        $process = $this->createProcess($uri, $options);
-        $promise = new Promise(function () use ($process) {
-            $process->wait();
-        });
-        $process->start(function () use ($process, $promise) {
-            $promise->resolve($process);
-        });
-
-        return $promise->then(function (Process $process) {
+        return $deferred->promise()->then(function (Process $process) {
             $response = $this->toTestResponse(PreventEcho::prevent($process->getOutput()));
             $cookies = $response->headers->getCookies();
             foreach ($cookies as $cookie) {
@@ -103,7 +85,7 @@ class AsyncRequest
      */
     public static function setBinary(string $binary): void
     {
-        self::$binary = $binary;
+        ArtisanDeferred::setBinary($binary);
     }
 
     /**
@@ -113,60 +95,5 @@ class AsyncRequest
     public static function create(array $serverVariables = []): self
     {
         return new self($serverVariables);
-    }
-
-    /**
-     * @param string $uri
-     * @param array $options
-     * @return Process
-     */
-    private function createProcess(string $uri, array $options): Process
-    {
-        $command = array_merge([
-            $this->getPhpBinary(),
-            $this->getBinary(),
-            'async:request',
-            $uri,
-        ], $options, ['--ansi']);
-
-        return new Process($command, null, $this->serverVariables, null, 86400);
-    }
-
-    /**
-     * @param array $data
-     * @return array
-     */
-    private static function toCommandOptions(array $data): array
-    {
-        $data = array_merge(['parameters' => '[]'], array_filter($data, static function ($value) {
-            return ! empty($value);
-        }));
-
-        $options = [];
-        foreach ($data as $key => $value) {
-            $options[] = '--'.$key.'='.(is_array($value) ? json_encode($value) : $value);
-        }
-
-        return $options;
-    }
-
-    /**
-     * @return false|string
-     */
-    private function getPhpBinary()
-    {
-        if (! $this->phpBinary) {
-            $this->phpBinary = (new PhpExecutableFinder())->find(false);
-        }
-
-        return $this->phpBinary;
-    }
-
-    /**
-     * @return string
-     */
-    private function getBinary(): string
-    {
-        return self::$binary;
     }
 }

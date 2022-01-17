@@ -2,13 +2,13 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
 use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
 use Recca0120\AsyncTesting\Tests\Fixtures\PrepareDatabase;
 use Symfony\Component\Console\Application;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -21,9 +21,14 @@ $laravel = new class() {
 
     protected function getEnvironmentSetUp($app)
     {
+        $app['config']['auth.guards.api'] = [
+            'driver' => 'token',
+            'provider' => 'users',
+            'hash' => false,
+        ];
+
         $this->databaseSetUp($app);
     }
-
 
     protected function defineRoutes($router): void
     {
@@ -59,8 +64,6 @@ $laravel = new class() {
 
         $router->middleware('web')->get('/dd', function () {
             dd('dd(foo)');
-
-            return 'bar';
         });
 
         $router->middleware('web')->post('/auth/login', function (Request $request) {
@@ -95,7 +98,6 @@ $laravel = new class() {
         $router->middleware('auth:api')->post('/api/user', function (Request $request) {
             return response()->json($request->user());
         });
-
     }
 
     public function getApplication()

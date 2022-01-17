@@ -40,7 +40,8 @@ class PreventEcho
     private static function echoOutput(string $output): void
     {
         if (self::$echoClosure !== null) {
-            (self::$echoClosure)($output);
+            $cb = self::$echoClosure;
+            $cb($output);
         } else {
             echo $output;
         }

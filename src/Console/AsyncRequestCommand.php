@@ -2,30 +2,33 @@
 
 namespace Recca0120\AsyncTesting\Console;
 
+use Exception;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 class AsyncRequestCommand extends Command
 {
     use MakesHttpRequests;
     use SerializesAndRestoresModelIdentifiers;
 
+    public const COMMAND_NAME = 'async:request';
+
     /**
      * @var string
      */
-    protected static $defaultName = 'async:request';
+    protected static $defaultName = self::COMMAND_NAME;
     /**
      * @var Application
      */
@@ -77,8 +80,25 @@ class AsyncRequestCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int
+     * @throws Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        try {
+            $response = $this->makeRequest($input);
+        } catch (Exception $e) {
+            $response = new Response($e->getMessage(), 500);
+        }
+        $output->write($this->toMessage($response));
+
+        return $response->isSuccessful() ? 0 : 1;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return Response
+     */
+    private function makeRequest(InputInterface $input): Response
     {
         $this->handleWithoutMiddleware($input)
             ->handleWithMiddleware($input)
@@ -88,10 +108,7 @@ class AsyncRequestCommand extends Command
             ->handleWithCredentials($input)
             ->handleAuthenticatable($input);
 
-        $response = $this->makeTestResponse($input);
-        $output->write($this->toMessage($response->baseResponse));
-
-        return $response->isSuccessful() ? 0 : 1;
+        return $this->makeTestResponse($input)->baseResponse;
     }
 
     /**
@@ -122,13 +139,15 @@ class AsyncRequestCommand extends Command
     }
 
     /**
-     * @param Response|JsonResponse $response
+     * @param Response $response
      * @return string
      */
-    private function toMessage($response): string
+    private function toMessage(Response $response): string
     {
         return Message::toString(new Psr7Response(
-            $response->getStatusCode(), $response->headers->all(), $response->getContent()
+            $response->getStatusCode(),
+            $response->headers->all(),
+            $response->getContent()
         ));
     }
 
@@ -254,7 +273,7 @@ class AsyncRequestCommand extends Command
             unserialize(base64_decode($serialized), [Authenticatable::class, ModelIdentifier::class])
         );
 
-        $this->app['auth']->guard($input->getOption('guard'))->setUser($user);
+        Auth::guard($input->getOption('guard'))->setUser($user);
 
         return $this;
     }

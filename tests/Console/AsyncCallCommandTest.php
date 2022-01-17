@@ -73,7 +73,7 @@ class AsyncCallCommandTest extends TestCase
     {
         $application = new Application();
         $application->add(new AsyncRequestCommand($this->app));
-        $command = $application->find('async:request');
+        $command = $application->find(AsyncRequestCommand::COMMAND_NAME);
         $commandTester = new CommandTester($command);
         $commandTester->execute($arguments);
         $output = $commandTester->getDisplay();
