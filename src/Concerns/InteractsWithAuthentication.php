@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Concerns;
+namespace Recca0120\LaravelParallel\Concerns;
 
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;

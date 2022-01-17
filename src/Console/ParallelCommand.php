@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Console;
+namespace Recca0120\LaravelParallel\Console;
 
 use Exception;
 use GuzzleHttp\Psr7\Message;
@@ -18,12 +18,12 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class AsyncRequestCommand extends Command
+class ParallelCommand extends Command
 {
     use MakesHttpRequests;
     use SerializesAndRestoresModelIdentifiers;
 
-    public const COMMAND_NAME = 'async:request';
+    public const COMMAND_NAME = 'parallel:request';
 
     /**
      * @var string
@@ -163,7 +163,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleWithoutMiddleware(InputInterface $input): self
     {
@@ -179,7 +179,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleWithMiddleware(InputInterface $input): self
     {
@@ -195,7 +195,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleWithUnencryptedCookies(InputInterface $input): self
     {
@@ -211,7 +211,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleServerVariables(InputInterface $input): self
     {
@@ -224,7 +224,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleFollowRedirects(InputInterface $input): self
     {
@@ -237,7 +237,7 @@ class AsyncRequestCommand extends Command
 
     /**
      * @param InputInterface $input
-     * @return AsyncRequestCommand
+     * @return ParallelCommand
      */
     private function handleWithCredentials(InputInterface $input): self
     {

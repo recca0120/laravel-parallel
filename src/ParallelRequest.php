@@ -1,20 +1,20 @@
 <?php
 
-namespace Recca0120\AsyncTesting;
+namespace Recca0120\LaravelParallel;
 
 use GuzzleHttp\Promise\PromiseInterface;
-use Recca0120\AsyncTesting\Concerns\InteractsWithAuthentication;
-use Recca0120\AsyncTesting\Concerns\MakesHttpRequests;
-use Recca0120\AsyncTesting\Concerns\MakesIlluminateResponses;
-use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
-use Symfony\Component\HttpFoundation\Request;
+use GuzzleHttp\Psr7\Message;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Recca0120\LaravelParallel\Concerns\InteractsWithAuthentication;
+use Recca0120\LaravelParallel\Concerns\MakesHttpRequests;
+use Recca0120\LaravelParallel\Console\ParallelCommand;
 use Symfony\Component\Process\Process;
 
-class AsyncRequest
+class ParallelRequest
 {
     use MakesHttpRequests;
     use InteractsWithAuthentication;
-    use MakesIlluminateResponses;
 
     /**
      * AsyncRequest constructor.
@@ -22,9 +22,7 @@ class AsyncRequest
      */
     public function __construct(array $serverVariables = [])
     {
-        $this->withServerVariables(
-            array_merge(Request::createFromGlobals()->server->all(), $serverVariables)
-        );
+        $this->withServerVariables($serverVariables);
     }
 
     /**
@@ -41,7 +39,7 @@ class AsyncRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        $deferred = new ArtisanDeferred(AsyncRequestCommand::COMMAND_NAME, [
+        return (new Artisan(Request::capture(), $this->serverVariables))->call(ParallelCommand::COMMAND_NAME, [
             $uri,
             '--method' => $method,
             '--parameters' => $parameters,
@@ -58,16 +56,9 @@ class AsyncRequest
             '--disableCookieEncryption' => ! $this->encryptCookies,
             '--user' => $this->user,
             '--guard' => $this->guard,
-        ], $this->serverVariables);
-
-        return $deferred->promise()->then(function (Process $process) {
-            $response = $this->toTestResponse(PreventEcho::prevent($process->getOutput()));
-            $cookies = $response->headers->getCookies();
-            foreach ($cookies as $cookie) {
-                $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
-            }
-
-            return $response;
+            '--ansi',
+        ])->then(function (Process $process) {
+            return $this->updateCookies($this->toResponse($process->getOutput()));
         });
     }
 
@@ -85,7 +76,7 @@ class AsyncRequest
      */
     public static function setBinary(string $binary): void
     {
-        ArtisanDeferred::setBinary($binary);
+        Artisan::setBinary($binary);
     }
 
     /**
@@ -94,6 +85,31 @@ class AsyncRequest
      */
     public static function create(array $serverVariables = []): self
     {
-        return new self($serverVariables);
+        return new static($serverVariables);
+    }
+
+    /**
+     * @param Response $response
+     * @return Response
+     */
+    private function updateCookies(Response $response): Response
+    {
+        $cookies = $response->headers->getCookies();
+        foreach ($cookies as $cookie) {
+            $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param string $message
+     * @return Response
+     */
+    private function toResponse(string $message): Response
+    {
+        $response = Message::parseResponse(PreventEcho::prevent($message));
+
+        return new Response((string) $response->getBody(), $response->getStatusCode(), $response->getHeaders());
     }
 }

@@ -1,18 +1,18 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Tests\Console;
+namespace Recca0120\LaravelParallel\Tests\Console;
 
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
-use Recca0120\AsyncTesting\Tests\TestCase;
+use Recca0120\LaravelParallel\Console\ParallelCommand;
+use Recca0120\LaravelParallel\Tests\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class AsyncCallCommandTest extends TestCase
+class ParallelCommandTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
@@ -72,8 +72,8 @@ class AsyncCallCommandTest extends TestCase
     private function givenResponse(array $arguments = []): Response
     {
         $application = new Application();
-        $application->add(new AsyncRequestCommand($this->app));
-        $command = $application->find(AsyncRequestCommand::COMMAND_NAME);
+        $application->add(new ParallelCommand($this->app));
+        $command = $application->find(ParallelCommand::COMMAND_NAME);
         $commandTester = new CommandTester($command);
         $commandTester->execute($arguments);
         $output = $commandTester->getDisplay();

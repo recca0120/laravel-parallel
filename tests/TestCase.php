@@ -1,18 +1,18 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Tests;
+namespace Recca0120\LaravelParallel\Tests;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
 use Orchestra\Testbench\TestCase as BaseTestCase;
-use Recca0120\AsyncTesting\AsyncTestingServiceProvider;
-use Recca0120\AsyncTesting\Tests\Fixtures\PrepareDatabase;
+use Recca0120\LaravelParallel\ParallelServiceProvider;
+use Recca0120\LaravelParallel\Tests\Fixtures\setupDatabase;
 
 class TestCase extends BaseTestCase
 {
-    use PrepareDatabase;
+    use setupDatabase;
 
     protected function getEnvironmentSetUp($app)
     {
@@ -28,7 +28,7 @@ class TestCase extends BaseTestCase
      */
     protected function getPackageProviders($app): array
     {
-        return [AsyncTestingServiceProvider::class];
+        return [ParallelServiceProvider::class];
     }
 
     /**

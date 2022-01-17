@@ -1,13 +1,13 @@
 <?php
 
-namespace Recca0120\AsyncTesting;
+namespace Recca0120\LaravelParallel;
 
 class PreventEcho
 {
     /**
      * @var callable|null
      */
-    private static $echoClosure;
+    private static $echoCallable = [self::class, 'output'];
 
     /**
      * @param string $output
@@ -31,7 +31,7 @@ class PreventEcho
      */
     public static function echoUsing(callable $callable): void
     {
-        self::$echoClosure = $callable;
+        self::$echoCallable = $callable;
     }
 
     /**
@@ -39,11 +39,12 @@ class PreventEcho
      */
     private static function echoOutput(string $output): void
     {
-        if (self::$echoClosure !== null) {
-            $cb = self::$echoClosure;
-            $cb($output);
-        } else {
-            echo $output;
-        }
+        $cb = self::$echoCallable;
+        $cb($output);
+    }
+
+    private static function output($output): void
+    {
+        echo $output;
     }
 }

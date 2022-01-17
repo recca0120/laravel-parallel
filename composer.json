@@ -1,11 +1,11 @@
 {
-    "name": "recca0120/async-testing",
-    "description": "this package can help you to test race condition in Laravel Feature Test",
+    "name": "recca0120/laravel-parallel",
+    "description": "",
     "keywords": [
         "laravel",
         "testing",
-        "async",
-        "parallel"
+        "parallel",
+        "parallel request"
     ],
     "license": "MIT",
     "authors": [
@@ -18,8 +18,7 @@
     "require": {
         "ext-json": "*",
         "guzzlehttp/promises": "^1.3.1|^1.4",
-        "guzzlehttp/psr7": "^1.8",
-        "symfony/http-foundation": "^4.0|^5.0|^6.0"
+        "guzzlehttp/psr7": "^1.8"
     },
     "require-dev": {
         "mockery/mockery": "^0.9|^1.3",
@@ -28,12 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Recca0120\\AsyncTesting\\": "src/"
+            "Recca0120\\LaravelParallel\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Recca0120\\AsyncTesting\\Tests\\": "tests/"
+            "Recca0120\\LaravelParallel\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -51,7 +50,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Recca0120\\AsyncTesting\\AsyncTestingServiceProvider"
+                "Recca0120\\LaravelParallel\\ParallelServiceProvider"
             ]
         }
     }

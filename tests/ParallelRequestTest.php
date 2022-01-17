@@ -1,25 +1,24 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Tests;
+namespace Recca0120\LaravelParallel\Tests;
 
 use Illuminate\Auth\GenericUser;
-use Recca0120\AsyncTesting\AsyncRequest;
-use Recca0120\AsyncTesting\Tests\Fixtures\User;
+use Recca0120\LaravelParallel\Tests\Fixtures\User;
 use Throwable;
 
-class AsyncRequestTest extends TestCase
+class ParallelRequestTest extends TestCase
 {
     public function setUp(): void
     {
         parent::setUp();
-        AsyncRequest::setBinary(__DIR__.'/Fixtures/artisan');
+        ParallelRequest::setBinary(__DIR__.'/Fixtures/artisan');
     }
 
     public function test_it_should_return_test_response(): void
     {
-        $asyncRequest = AsyncRequest::create()->from('/foo');
+        $request = ParallelRequest::create()->from('/foo');
 
-        $response = $asyncRequest->get('/')->wait();
+        $response = $request->get('/')->wait();
 
         $response->assertOk()->assertSee('Hello World');
     }
@@ -27,18 +26,18 @@ class AsyncRequestTest extends TestCase
     public function test_it_should_return_previous_url(): void
     {
         $from = '/foo';
-        $asyncRequest = AsyncRequest::create()->from($from);
+        $request = ParallelRequest::create()->from($from);
 
-        $response = $asyncRequest->get('/previous_url')->wait();
+        $response = $request->get('/previous_url')->wait();
 
         $response->assertOk()->assertSee($from);
     }
 
     public function test_it_should_has_db_connection_in_server_variables(): void
     {
-        $asyncRequest = AsyncRequest::create(['CUSTOM' => 'custom']);
+        $request = ParallelRequest::create(['CUSTOM' => 'custom']);
 
-        $response = $asyncRequest->getJson('/server_variables')->wait();
+        $response = $request->getJson('/server_variables')->wait();
 
         $response->assertOk()->assertJson([
             'DB_CONNECTION' => 'testbench',
@@ -48,9 +47,9 @@ class AsyncRequestTest extends TestCase
 
     public function test_it_should_return_test_response_with_json_response(): void
     {
-        $asyncRequest = AsyncRequest::create();
+        $request = ParallelRequest::create();
 
-        $response = $asyncRequest->json('GET', '/')->wait();
+        $response = $request->json('GET', '/')->wait();
 
         $response->assertOk()->assertJson(['content' => 'Hello World']);
     }
@@ -60,7 +59,7 @@ class AsyncRequestTest extends TestCase
      */
     public function test_it_should_get_json_ten_times(): void
     {
-        $batch = AsyncRequest::create()->times(10);
+        $batch = ParallelRequest::create()->times(10);
 
         $responses = [];
         foreach ($batch->json('GET', '/') as $promise) {
@@ -76,7 +75,7 @@ class AsyncRequestTest extends TestCase
      */
     public function test_it_should_assert_http_status_code(int $code): void
     {
-        $response = AsyncRequest::create()->get('/status_code/'.$code)->wait();
+        $response = ParallelRequest::create()->get('/status_code/'.$code)->wait();
 
         $response->assertStatus($code);
     }
@@ -85,7 +84,7 @@ class AsyncRequestTest extends TestCase
     {
         $this->expectOutputRegex('/echo foo/');
 
-        $response = AsyncRequest::create()->get('/echo')->wait();
+        $response = ParallelRequest::create()->get('/echo')->wait();
 
         $response->assertSee('bar');
     }
@@ -94,7 +93,7 @@ class AsyncRequestTest extends TestCase
     {
         $this->expectOutputRegex('/dump\(foo\)/');
 
-        $response = AsyncRequest::create()->get('/dump')->wait();
+        $response = ParallelRequest::create()->get('/dump')->wait();
 
         $response->assertSee('bar');
     }
@@ -103,33 +102,33 @@ class AsyncRequestTest extends TestCase
     {
         $this->expectOutputRegex('/dd\(foo\)/');
 
-        AsyncRequest::create()->get('/dd')->wait();
+        ParallelRequest::create()->get('/dd')->wait();
     }
 
     public function test_it_should_show_generic_user_info(): void
     {
         $user = new GenericUser(['email' => 'recca0120@gmail.com']);
-        $asyncRequest = AsyncRequest::create()->actingAs($user);
+        $request = ParallelRequest::create()->actingAs($user);
 
-        $response = $asyncRequest->postJson('/user')->wait();
+        $response = $request->postJson('/user')->wait();
 
         $response->assertJsonPath('email', 'recca0120@gmail.com');
     }
 
     public function test_it_should_show_eloquent_user_info(): void
     {
-        $asyncRequest = AsyncRequest::create()->actingAs(User::first(), 'api');
+        $request = ParallelRequest::create()->actingAs(User::first(), 'api');
 
-        $response = $asyncRequest->postJson('/api/user')->wait();
+        $response = $request->postJson('/api/user')->wait();
 
         $response->assertJsonPath('email', 'recca0120@gmail.com');
     }
 
     public function test_it_should_login_and_get_user_info(): void
     {
-        $asyncRequest = AsyncRequest::create();
+        $request = ParallelRequest::create();
 
-        $response = $asyncRequest->post('/auth/login', [
+        $response = $request->post('/auth/login', [
             'email' => 'recca0120@gmail.com',
             'password' => 'password',
         ])->wait();
@@ -140,9 +139,9 @@ class AsyncRequestTest extends TestCase
     public function test_it_should_get_user_info_with_token(): void
     {
         $token = '6Uv0zov7V2dAk5wWE45HHHhz05gpsmw2';
-        $asyncRequest = AsyncRequest::create()->withToken($token);
+        $request = ParallelRequest::create()->withToken($token);
 
-        $response = $asyncRequest->post('/api/user')->wait();
+        $response = $request->post('/api/user')->wait();
 
         $response->assertJsonPath('email', 'recca0120@gmail.com');
     }
@@ -150,10 +149,10 @@ class AsyncRequestTest extends TestCase
     public function test_it_should_get_session_value(): void
     {
         $sessionValue = uniqid('session_', true);
-        $asyncRequest = AsyncRequest::create();
-        $asyncRequest->patch('/session?session='.$sessionValue)->wait();
+        $request = ParallelRequest::create();
+        $request->patch('/session?session='.$sessionValue)->wait();
 
-        $response = $asyncRequest->getJson('/session')->wait();
+        $response = $request->getJson('/session')->wait();
 
         $response->assertJsonPath('session', $sessionValue);
     }
@@ -162,7 +161,7 @@ class AsyncRequestTest extends TestCase
     {
         $startTime = microtime(true);
 
-        foreach (AsyncRequest::create()->times(10)->get('/sleep') as $promise) {
+        foreach (ParallelRequest::create()->times(10)->get('/sleep') as $promise) {
             $promise->wait();
         }
 

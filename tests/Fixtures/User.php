@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Tests\Fixtures;
+namespace Recca0120\LaravelParallel\Tests\Fixtures;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 

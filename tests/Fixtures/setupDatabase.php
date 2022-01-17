@@ -1,10 +1,10 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Tests\Fixtures;
+namespace Recca0120\LaravelParallel\Tests\Fixtures;
 
 use Illuminate\Support\Facades\Hash;
 
-trait PrepareDatabase
+trait setupDatabase
 {
     protected function databaseSetUp($app)
     {

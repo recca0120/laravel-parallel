@@ -1,13 +1,14 @@
 <?php
 
-namespace Recca0120\AsyncTesting;
+namespace Recca0120\LaravelParallel;
 
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
-class ArtisanDeferred
+class Artisan
 {
     /**
      * @var string|null
@@ -18,28 +19,30 @@ class ArtisanDeferred
      */
     private static $binary = 'artisan';
     /**
-     * @var string
+     * @var Request
      */
-    private $method;
-    /**
-     * @var array
-     */
-    private $parameters;
+    private $request;
     /**
      * @var array
      */
     private $env;
 
-    public function __construct(string $method, array $parameters = [], array $env = [])
+    public function __construct(Request $request, array $env = [])
     {
-        $this->method = $method;
-        $this->parameters = $parameters;
-        $this->env = $env;
+        $this->request = $request;
+        $this->setEnv($env);
     }
 
-    public function promise(): PromiseInterface
+    public function setEnv(array $env): Artisan
     {
-        $process = new Process($this->getCommand(), null, $this->env, null, 86400);
+        $this->env = $env;
+
+        return $this;
+    }
+
+    public function call(string $command, array $parameters = []): PromiseInterface
+    {
+        $process = new Process($this->getCommand($command, $parameters), null, $this->getEnv(), null, 86400);
 
         $promise = new Promise(function () use ($process) {
             $process->wait();
@@ -57,21 +60,17 @@ class ArtisanDeferred
         self::$binary = $binary;
     }
 
-    private function getCommand(): array
+    private function getCommand(string $command, array $parameters): array
     {
         return array_merge([
             $this->getPhpBinary(),
             self::$binary,
-            $this->method,
-        ], $this->parseParameters(), ['--ansi']);
+            $command,
+        ], $this->parseParameters($parameters));
     }
 
-    private function parseParameters(): array
+    private function parseParameters(array $parameters): array
     {
-        $parameters = array_merge(['--parameters' => []], array_filter($this->parameters, static function ($parameter) {
-            return ! empty($parameter);
-        }));
-
         $parameters = array_map(static function ($parameter) {
             return is_array($parameter) ? json_encode($parameter) : $parameter;
         }, $parameters);
@@ -93,6 +92,13 @@ class ArtisanDeferred
         }
 
         return $params;
+    }
+
+    private function getEnv(): array
+    {
+        return array_filter(array_merge($this->request->server->all(), $_ENV, $this->env), static function ($env) {
+            return ! is_array($env);
+        });
     }
 
     private function getPhpBinary(): string

@@ -6,15 +6,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
-use Recca0120\AsyncTesting\Console\AsyncRequestCommand;
-use Recca0120\AsyncTesting\Tests\Fixtures\PrepareDatabase;
+use Recca0120\LaravelParallel\Console\ParallelCommand;
+use Recca0120\LaravelParallel\Tests\Fixtures\setupDatabase;
 use Symfony\Component\Console\Application;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
 $laravel = new class() {
     use CreatesApplication;
-    use PrepareDatabase;
+    use setupDatabase;
     use HandlesRoutes;
 
     private $app;
@@ -111,6 +111,6 @@ $laravel = new class() {
 };
 
 $application = new Application();
-$command = new AsyncRequestCommand($laravel->getApplication());
+$command = new ParallelCommand($laravel->getApplication());
 $application->add($command);
 $application->run();

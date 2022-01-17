@@ -1,8 +1,8 @@
 <?php
 
-namespace Recca0120\AsyncTesting;
+namespace Recca0120\LaravelParallel;
 
-use Prophecy\Promise\PromiseInterface;
+use GuzzleHttp\Promise\PromiseInterface;
 
 /**
  * @method self withHeaders(array $headers)
@@ -20,27 +20,27 @@ use Prophecy\Promise\PromiseInterface;
  * @method self withCredentials()
  * @method self disableCookieEncryption()
  * @method self from(string $url)
- * @method \GuzzleHttp\Promise\PromiseInterface[] get(string $uri, array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] getJson(string $uri, array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] post(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] postJson(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] put(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] putJson(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] patch(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] patchJson(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] delete(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] deleteJson(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] options(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] optionsJson(string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] json(string $method, string $uri, array $data = [], array $headers = [])
- * @method \GuzzleHttp\Promise\PromiseInterface[] call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+ * @method PromiseInterface[] get(string $uri, array $headers = [])
+ * @method PromiseInterface[] getJson(string $uri, array $headers = [])
+ * @method PromiseInterface[] post(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] postJson(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] put(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] putJson(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] patch(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] patchJson(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] delete(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] deleteJson(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] options(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] optionsJson(string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] json(string $method, string $uri, array $data = [], array $headers = [])
+ * @method PromiseInterface[] call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
  */
 class BatchRequest
 {
     /**
-     * @var AsyncRequest
+     * @var ParallelRequest
      */
-    private $asyncRequest;
+    private $request;
     /**
      * @var int
      */
@@ -67,12 +67,12 @@ class BatchRequest
 
     /**
      * Batch constructor.
-     * @param AsyncRequest $asyncRequest
+     * @param ParallelRequest $request
      * @param int $times
      */
-    public function __construct(AsyncRequest $asyncRequest, int $times)
+    public function __construct(ParallelRequest $request, int $times)
     {
-        $this->asyncRequest = $asyncRequest;
+        $this->request = $request;
         $this->times = $times;
     }
 
@@ -84,9 +84,9 @@ class BatchRequest
     public function __call($method, $arguments)
     {
         return ! in_array($method, $this->executeMethods, true)
-            ? call_user_func_array([$this->asyncRequest, $method], $arguments)
+            ? call_user_func_array([$this->request, $method], $arguments)
             : $this->handle(function () use ($method, $arguments) {
-                return call_user_func_array([$this->asyncRequest, $method], $arguments);
+                return call_user_func_array([$this->request, $method], $arguments);
             });
     }
 
@@ -97,7 +97,7 @@ class BatchRequest
     public function handle(callable $callable): array
     {
         return array_map(function ($index) use ($callable) {
-            return $callable($this->asyncRequest, $index);
+            return $callable($this->request, $index);
         }, range(0, $this->times - 1));
     }
 }

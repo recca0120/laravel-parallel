@@ -1,12 +1,10 @@
-# Laravel Async Testing
+# Laravel Parallel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/recca0120/async-testing.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
-![Tests](https://github.com/recca0120/async-testing/workflows/tests/badge.svg)
-[![Total Downloads](https://img.shields.io/packagist/dt/recca0120/async-testing.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/recca0120/laravel-parallel.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
+![Tests](https://github.com/recca0120/laravel-parallel/workflows/tests/badge.svg)
+[![Total Downloads](https://img.shields.io/packagist/dt/recca0120/laravel-parallel.svg?style=flat-square)](https://packagist.org/packages/recca0120/laravel-parallel)
 
-> this package can help you to test race condition in Laravel Feature Test
-
-![Async Testing](screenshots/async-testing.png "Async Testing")
+![Laravel Parallel](screenshots/laravel-parallel.png "Laravel Parallel")
 
 ## Requirements
 
@@ -18,7 +16,7 @@
 Install the package with composer:
 
 ```bash
-composer require recca0120/async-testing --dev
+composer require recca0120/laravel-parallel
 ```
 
 ## Usage
@@ -144,7 +142,7 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Recca0120\AsyncTesting\AsyncRequest;
+use Recca0120\LaravelParallel\Tests\ParallelRequest;
 use Tests\TestCase;
 
 class RaceConditionTest extends TestCase
@@ -162,12 +160,12 @@ class RaceConditionTest extends TestCase
 
     public function test_race_condition()
     {
-        $asyncRequest = $this->app->make(AsyncRequest::class);
+        $request = $this->app->make(ParallelRequest::class);
 
         $promises = collect();
         for ($i = 0; $i < $this->quantity; $i++) {
             // you will get \GuzzleHttp\Promise\PromiseInterface
-            $promise = $asyncRequest->post('/product/'.$this->product->id);
+            $promise = $request->post('/product/'.$this->product->id);
             $promises->add($promise);
         }
         // you need wait response
@@ -180,9 +178,9 @@ class RaceConditionTest extends TestCase
 
     public function test_use_times_to_test_race_condition()
     {
-        $asyncRequest = $this->app->make(AsyncRequest::class);
+        $request = $this->app->make(ParallelRequest::class);
 
-        $promises = collect($asyncRequest->times(10)->post('/product/'.$this->product->id));
+        $promises = collect($request->times(10)->post('/product/'.$this->product->id));
 
         // you need wait response
         $promises->map->wait()->each->assertOk();

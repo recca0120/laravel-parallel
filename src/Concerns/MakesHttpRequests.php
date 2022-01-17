@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\AsyncTesting\Concerns;
+namespace Recca0120\LaravelParallel\Concerns;
 
 use GuzzleHttp\Promise\PromiseInterface;
 
