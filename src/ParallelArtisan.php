@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
-class Artisan
+class ParallelArtisan
 {
     /**
      * @var string|null

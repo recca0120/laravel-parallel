@@ -1,6 +1,6 @@
 # Laravel Parallel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/recca0120/laravel-parallel.svg?style=flat-square)](https://packagist.org/packages/recca0120/async-testing)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/recca0120/laravel-parallel.svg?style=flat-square)](https://packagist.org/packages/recca0120/laravel-parallel)
 ![Tests](https://github.com/recca0120/laravel-parallel/workflows/tests/badge.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/recca0120/laravel-parallel.svg?style=flat-square)](https://packagist.org/packages/recca0120/laravel-parallel)
 

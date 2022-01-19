@@ -38,7 +38,7 @@ class ParallelRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        $artisan = new Artisan(Request::capture(), $this->serverVariables);
+        $artisan = new ParallelArtisan(Request::capture(), $this->serverVariables);
         $params = $this->toParams($uri, $method, $parameters, $cookies, $files, $server, $content);
 
         return ($artisan)->call(ParallelCommand::COMMAND_NAME, $params)
@@ -61,7 +61,7 @@ class ParallelRequest
      */
     public static function setBinary(string $binary): void
     {
-        Artisan::setBinary($binary);
+        ParallelArtisan::setBinary($binary);
     }
 
     /**
