@@ -140,6 +140,8 @@ Route::post('/product/{productId}', function ($productId) {
 
 namespace Tests\Feature;
 
+use function Amp\Promise\all;
+use function Amp\Promise\wait;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Recca0120\LaravelParallel\Tests\ParallelRequest;
@@ -162,29 +164,22 @@ class RaceConditionTest extends TestCase
     {
         $request = $this->app->make(ParallelRequest::class);
 
-        $promises = collect();
+        $promises = [];
         for ($i = 0; $i < $this->quantity; $i++) {
-            // you will get \GuzzleHttp\Promise\PromiseInterface
-            $promise = $request->post('/product/'.$this->product->id);
-            $promises->add($promise);
+            $promises[] = $request->post('/product/'.$this->product->id);
         }
-        // you need wait response
-        $promises->map->wait()->each->assertOk();
 
-        $this->get('/product/'.$this->product->id)
-            ->assertOk()
-            ->assertJsonPath('quantity', 0);
+        collect(wait(all($promises)))->each->assertOk();
+        $this->get('/product/'.$this->product->id)->assertOk()->assertJsonPath('quantity', 0);
     }
 
     public function test_multiple_times_to_test_race_condition()
     {
         $request = $this->app->make(ParallelRequest::class);
 
-        $promises = collect($request->times(10)->post('/product/'.$this->product->id));
+        $promises = collect(all(wait($request->times(10)->post('/product/'.$this->product->id))));
 
-        // you need wait response
-        $promises->map->wait()->each->assertOk();
-
+        $promises->each->assertOk();
         $this->get('/product/'.$this->product->id)
             ->assertOk()
             ->assertJsonPath('quantity', 0);

@@ -2,11 +2,13 @@
 
 namespace Recca0120\LaravelParallel;
 
-use GuzzleHttp\Promise\Promise;
-use GuzzleHttp\Promise\PromiseInterface;
+use function Amp\ByteStream\buffer;
+use function Amp\call;
+use Amp\Process\Process;
+use Amp\Promise;
 use Illuminate\Http\Request;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\Process;
+use Throwable;
 
 class ParallelArtisan
 {
@@ -30,6 +32,7 @@ class ParallelArtisan
      * @var Process
      */
     private $process;
+    private $_output;
 
     public function __construct(Request $request = null, array $env = [])
     {
@@ -44,24 +47,25 @@ class ParallelArtisan
         return $this;
     }
 
-    public function call(string $command, array $parameters = []): PromiseInterface
+    /**
+     * @throws Throwable
+     */
+    public function call(string $command, array $parameters = []): Promise
     {
-        $this->process = new Process($this->getCommand($command, $parameters), null, $this->getEnv(), null, 86400);
+        $this->_output = null;
+        $this->process = new Process($this->getCommand($command, $parameters), null, $this->getEnv());
 
-        $promise = new Promise(function () {
-            $this->process->wait();
+        return call(function () {
+            yield $this->process->start();
+            $this->_output = yield buffer($this->process->getStdout());
+
+            return yield $this->process->join();
         });
-
-        $this->process->start(function () use ($promise) {
-            $promise->resolve($this->process->getExitCode());
-        });
-
-        return $promise;
     }
 
     public function output(): string
     {
-        return $this->process->getOutput();
+        return $this->_output;
     }
 
     public static function setBinary(string $binary): void

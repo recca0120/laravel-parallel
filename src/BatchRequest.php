@@ -2,7 +2,7 @@
 
 namespace Recca0120\LaravelParallel;
 
-use GuzzleHttp\Promise\PromiseInterface;
+use Amp\Promise;
 
 /**
  * @method self withHeaders(array $headers)
@@ -20,20 +20,20 @@ use GuzzleHttp\Promise\PromiseInterface;
  * @method self withCredentials()
  * @method self disableCookieEncryption()
  * @method self from(string $url)
- * @method PromiseInterface[] get(string $uri, array $headers = [])
- * @method PromiseInterface[] getJson(string $uri, array $headers = [])
- * @method PromiseInterface[] post(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] postJson(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] put(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] putJson(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] patch(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] patchJson(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] delete(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] deleteJson(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] options(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] optionsJson(string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] json(string $method, string $uri, array $data = [], array $headers = [])
- * @method PromiseInterface[] call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+ * @method Promise[] get(string $uri, array $headers = [])
+ * @method Promise[] getJson(string $uri, array $headers = [])
+ * @method Promise[] post(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] postJson(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] put(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] putJson(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] patch(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] patchJson(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] delete(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] deleteJson(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] options(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] optionsJson(string $uri, array $data = [], array $headers = [])
+ * @method Promise[] json(string $method, string $uri, array $data = [], array $headers = [])
+ * @method Promise[] call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
  */
 class BatchRequest
 {
@@ -92,7 +92,7 @@ class BatchRequest
 
     /**
      * @param callable $callable
-     * @return PromiseInterface[]
+     * @return Promise[]
      */
     public function handle(callable $callable): array
     {

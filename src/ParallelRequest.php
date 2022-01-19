@@ -2,7 +2,8 @@
 
 namespace Recca0120\LaravelParallel;
 
-use GuzzleHttp\Promise\PromiseInterface;
+use function Amp\call;
+use Amp\Promise;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Recca0120\LaravelParallel\Concerns\InteractsWithAuthentication;
@@ -55,19 +56,20 @@ class ParallelRequest
      * @param array $files
      * @param array $server
      * @param null $content
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
+    public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): Promise
     {
         $artisan = new ParallelArtisan($this->request, $this->serverVariables);
         $params = $this->toParams($uri, $method, $parameters, $cookies, $files, $server, $content);
 
-        return $artisan->call(ParallelCommand::COMMAND_NAME, $params)
-            ->then(function () use ($artisan) {
-                return $this->updateCookies(
-                    ResponseIdentifier::fromMessage($artisan->output())->toResponse()
-                );
-            });
+        return call(function () use ($artisan, $params) {
+            yield $artisan->call(ParallelCommand::COMMAND_NAME, $params);
+
+            return $this->updateCookies(
+                ResponseIdentifier::fromMessage($artisan->output())->toResponse()
+            );
+        });
     }
 
     /**
