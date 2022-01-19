@@ -86,6 +86,7 @@ class ParallelCommand extends Command
         try {
             $response = $this->makeRequest($input);
         } catch (Exception $e) {
+            $this->app['log']->debug($e);
             $response = new Response($e->getMessage(), 500);
         }
         $output->write($this->toMessage($response));
