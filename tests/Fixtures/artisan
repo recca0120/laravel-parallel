@@ -9,6 +9,10 @@ use Orchestra\Testbench\Concerns\HandlesRoutes;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
 use Recca0120\LaravelParallel\Tests\Fixtures\setupDatabase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -110,7 +114,29 @@ $laravel = new class() {
     }
 };
 
+class EchoCommand extends Command
+{
+    protected static $defaultName = 'echo';
+
+    protected function configure(): void
+    {
+        $this->addArgument('string', InputArgument::REQUIRED);
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int
+     */
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $output->write($input->getArgument('string'));
+
+        return 0;
+    }
+}
+
 $application = new Application();
-$command = new ParallelCommand($laravel->getApplication());
-$application->add($command);
+$application->add(new ParallelCommand($laravel->getApplication()));
+$application->add(new EchoCommand());
 $application->run();

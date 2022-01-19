@@ -26,6 +26,10 @@ class Artisan
      * @var array
      */
     private $env;
+    /**
+     * @var Process
+     */
+    private $process;
 
     public function __construct(Request $request, array $env = [])
     {
@@ -33,7 +37,7 @@ class Artisan
         $this->setEnv($env);
     }
 
-    public function setEnv(array $env): Artisan
+    public function setEnv(array $env): self
     {
         $this->env = $env;
 
@@ -42,17 +46,22 @@ class Artisan
 
     public function call(string $command, array $parameters = []): PromiseInterface
     {
-        $process = new Process($this->getCommand($command, $parameters), null, $this->getEnv(), null, 86400);
+        $this->process = new Process($this->getCommand($command, $parameters), null, $this->getEnv(), null, 86400);
 
-        $promise = new Promise(function () use ($process) {
-            $process->wait();
+        $promise = new Promise(function () {
+            $this->process->wait();
         });
 
-        $process->start(function () use ($process, $promise) {
-            $promise->resolve($process);
+        $this->process->start(function () use ($promise) {
+            $promise->resolve($this->process->getExitCode());
         });
 
         return $promise;
+    }
+
+    public function output(): string
+    {
+        return $this->process->getOutput();
     }
 
     public static function setBinary(string $binary): void

@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 use Recca0120\LaravelParallel\Concerns\InteractsWithAuthentication;
 use Recca0120\LaravelParallel\Concerns\MakesHttpRequests;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
-use Symfony\Component\Process\Process;
 
 class ParallelRequest
 {
@@ -39,27 +38,13 @@ class ParallelRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        return (new Artisan(Request::capture(), $this->serverVariables))->call(ParallelCommand::COMMAND_NAME, [
-            $uri,
-            '--method' => $method,
-            '--parameters' => $parameters,
-            '--cookies' => $cookies,
-            '--files' => $files,
-            '--server' => $server,
-            '--content' => $content,
-            '--withoutMiddleware' => $this->withoutMiddleware,
-            '--withMiddleware' => $this->withMiddleware,
-            '--withUnencryptedCookies' => $this->unencryptedCookies,
-            // '--serverVariables' => $this->serverVariables,
-            '--followRedirects' => $this->followRedirects,
-            '--withCredentials' => $this->withCredentials,
-            '--disableCookieEncryption' => ! $this->encryptCookies,
-            '--user' => $this->user,
-            '--guard' => $this->guard,
-            '--ansi',
-        ])->then(function (Process $process) {
-            return $this->updateCookies($this->toResponse($process->getOutput()));
-        });
+        $artisan = new Artisan(Request::capture(), $this->serverVariables);
+        $params = $this->toParams($uri, $method, $parameters, $cookies, $files, $server, $content);
+
+        return ($artisan)->call(ParallelCommand::COMMAND_NAME, $params)
+            ->then(function () use ($artisan) {
+                return $this->updateCookies($this->toResponse($artisan->output()));
+            });
     }
 
     /**
@@ -111,5 +96,38 @@ class ParallelRequest
         $response = Message::parseResponse(PreventEcho::prevent($message));
 
         return new Response((string) $response->getBody(), $response->getStatusCode(), $response->getHeaders());
+    }
+
+    /**
+     * @param string $uri
+     * @param string $method
+     * @param array $parameters
+     * @param array $cookies
+     * @param array $files
+     * @param array $server
+     * @param $content
+     * @return array
+     */
+    private function toParams(string $uri, string $method, array $parameters, array $cookies, array $files, array $server, $content): array
+    {
+        return [
+            $uri,
+            '--method' => $method,
+            '--parameters' => $parameters,
+            '--cookies' => $cookies,
+            '--files' => $files,
+            '--server' => $server,
+            '--content' => $content,
+            '--withoutMiddleware' => $this->withoutMiddleware,
+            '--withMiddleware' => $this->withMiddleware,
+            '--withUnencryptedCookies' => $this->unencryptedCookies,
+            // '--serverVariables' => $this->serverVariables,
+            '--followRedirects' => $this->followRedirects,
+            '--withCredentials' => $this->withCredentials,
+            '--disableCookieEncryption' => ! $this->encryptCookies,
+            '--user' => $this->user,
+            '--guard' => $this->guard,
+            '--ansi',
+        ];
     }
 }
