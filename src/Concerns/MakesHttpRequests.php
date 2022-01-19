@@ -2,7 +2,7 @@
 
 namespace Recca0120\LaravelParallel\Concerns;
 
-use GuzzleHttp\Promise\PromiseInterface;
+use Amp\Promise;
 
 trait MakesHttpRequests
 {
@@ -261,9 +261,9 @@ trait MakesHttpRequests
      *
      * @param string $uri
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function get(string $uri, array $headers = []): PromiseInterface
+    public function get(string $uri, array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -276,9 +276,9 @@ trait MakesHttpRequests
      *
      * @param string $uri
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function getJson(string $uri, array $headers = []): PromiseInterface
+    public function getJson(string $uri, array $headers = []): Promise
     {
         return $this->json('GET', $uri, [], $headers);
     }
@@ -289,9 +289,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function post(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function post(string $uri, array $data = [], array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -305,9 +305,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function postJson(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function postJson(string $uri, array $data = [], array $headers = []): Promise
     {
         return $this->json('POST', $uri, $data, $headers);
     }
@@ -318,9 +318,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function put(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function put(string $uri, array $data = [], array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -334,9 +334,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function putJson(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function putJson(string $uri, array $data = [], array $headers = []): Promise
     {
         return $this->json('PUT', $uri, $data, $headers);
     }
@@ -347,9 +347,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function patch(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function patch(string $uri, array $data = [], array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -363,9 +363,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function patchJson(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function patchJson(string $uri, array $data = [], array $headers = []): Promise
     {
         return $this->json('PATCH', $uri, $data, $headers);
     }
@@ -376,9 +376,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function delete(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function delete(string $uri, array $data = [], array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -392,9 +392,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function deleteJson(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function deleteJson(string $uri, array $data = [], array $headers = []): Promise
     {
         return $this->json('DELETE', $uri, $data, $headers);
     }
@@ -405,9 +405,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function options(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function options(string $uri, array $data = [], array $headers = []): Promise
     {
         $server = $this->transformHeadersToServerVars($headers);
         $cookies = $this->prepareCookiesForRequest();
@@ -421,9 +421,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function optionsJson(string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function optionsJson(string $uri, array $data = [], array $headers = []): Promise
     {
         return $this->json('OPTIONS', $uri, $data, $headers);
     }
@@ -435,9 +435,9 @@ trait MakesHttpRequests
      * @param string $uri
      * @param array $data
      * @param array $headers
-     * @return PromiseInterface
+     * @return Promise
      */
-    public function json(string $method, string $uri, array $data = [], array $headers = []): PromiseInterface
+    public function json(string $method, string $uri, array $data = [], array $headers = []): Promise
     {
         $content = json_encode($data);
 
@@ -468,9 +468,9 @@ trait MakesHttpRequests
      * @param array $files
      * @param array $server
      * @param null $content
-     * @return PromiseInterface
+     * @return Promise
      */
-    abstract public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface;
+    abstract public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): Promise;
 
     /**
      * @param array $headers
