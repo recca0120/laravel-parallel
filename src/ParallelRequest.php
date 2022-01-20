@@ -16,12 +16,17 @@ class ParallelRequest
     use InteractsWithAuthentication;
 
     /**
-     * AsyncRequest constructor.
-     * @param array $serverVariables
+     * @var Request|null
      */
-    public function __construct(array $serverVariables = [])
+    private $request;
+
+    /**
+     * AsyncRequest constructor.
+     * @param Request|null $request
+     */
+    public function __construct(Request $request = null)
     {
-        $this->withServerVariables($serverVariables);
+        $this->request = $request ?? Request::capture();
     }
 
     /**
@@ -38,10 +43,10 @@ class ParallelRequest
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
-        $artisan = new ParallelArtisan(Request::capture(), $this->serverVariables);
+        $artisan = new ParallelArtisan($this->request, $this->serverVariables);
         $params = $this->toParams($uri, $method, $parameters, $cookies, $files, $server, $content);
 
-        return ($artisan)->call(ParallelCommand::COMMAND_NAME, $params)
+        return $artisan->call(ParallelCommand::COMMAND_NAME, $params)
             ->then(function () use ($artisan) {
                 return $this->updateCookies($this->toResponse($artisan->output()));
             });
@@ -66,11 +71,12 @@ class ParallelRequest
 
     /**
      * @param array $serverVariables
+     * @param Request|null $request
      * @return $this
      */
-    public static function create(array $serverVariables = []): self
+    public static function create(Request $request = null): self
     {
-        return new static($serverVariables);
+        return new static($request);
     }
 
     /**

@@ -31,9 +31,9 @@ class ParallelArtisan
      */
     private $process;
 
-    public function __construct(Request $request, array $env = [])
+    public function __construct(Request $request = null, array $env = [])
     {
-        $this->request = $request;
+        $this->request = $request ?? Request::capture();
         $this->setEnv($env);
     }
 
@@ -105,9 +105,14 @@ class ParallelArtisan
 
     private function getEnv(): array
     {
-        return array_filter(array_merge($this->request->server->all(), $_ENV, $this->env), static function ($env) {
-            return ! is_array($env);
-        });
+        $env = array_merge($this->request->server->all(), $_ENV, $this->env);
+        foreach (['argc', 'argv', 'ARGC', 'ARGV'] as $key) {
+            if (array_key_exists($key, $env)) {
+                unset($env[$key]);
+            }
+        }
+
+        return $env;
     }
 
     private function getPhpBinary(): string

@@ -35,7 +35,7 @@ class ParallelRequestTest extends TestCase
 
     public function test_it_should_has_db_connection_in_server_variables(): void
     {
-        $request = ParallelRequest::create(['CUSTOM' => 'custom']);
+        $request = ParallelRequest::create()->withServerVariables(['CUSTOM' => 'custom']);
 
         $response = $request->getJson('/server_variables')->wait();
 
