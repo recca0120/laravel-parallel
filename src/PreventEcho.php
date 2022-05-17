@@ -15,7 +15,7 @@ class PreventEcho
      */
     public static function prevent(string $output): string
     {
-        preg_match('/^(?<output>.*)(?<message>HTTP\/.*\s[\d]{3}([^\r\n]*)\r\n.*)/s', $output, $matches);
+        preg_match('/^(?<output>.*)(?<message>HTTP\/.*\s\d{3}([^\r\n]*)\r\n.*)/s', $output, $matches);
 
         if (! array_key_exists('message', $matches)) {
             $matches = ['output' => $output, 'message' => "HTTP/1.1 200 OK\r\n\r\n"];

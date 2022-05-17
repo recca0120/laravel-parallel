@@ -70,7 +70,6 @@ class ParallelRequest
     }
 
     /**
-     * @param array $serverVariables
      * @param Request|null $request
      * @return $this
      */
