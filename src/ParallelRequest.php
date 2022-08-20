@@ -3,7 +3,6 @@
 namespace Recca0120\LaravelParallel;
 
 use GuzzleHttp\Promise\PromiseInterface;
-use GuzzleHttp\Psr7\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Recca0120\LaravelParallel\Concerns\InteractsWithAuthentication;
@@ -30,6 +29,23 @@ class ParallelRequest
     }
 
     /**
+     * @param string $binary
+     */
+    public static function setBinary(string $binary): void
+    {
+        ParallelArtisan::setBinary($binary);
+    }
+
+    /**
+     * @param Request|null $request
+     * @return $this
+     */
+    public static function create(Request $request = null): self
+    {
+        return new static($request);
+    }
+
+    /**
      * Call the given URI and return the Response.
      *
      * @param string $method
@@ -48,7 +64,9 @@ class ParallelRequest
 
         return $artisan->call(ParallelCommand::COMMAND_NAME, $params)
             ->then(function () use ($artisan) {
-                return $this->updateCookies($this->toResponse($artisan->output()));
+                return $this->updateCookies(
+                    ResponseIdentifier::fromMessage($artisan->output())->toResponse()
+                );
             });
     }
 
@@ -59,48 +77,6 @@ class ParallelRequest
     public function times(int $times): BatchRequest
     {
         return new BatchRequest($this, $times);
-    }
-
-    /**
-     * @param string $binary
-     */
-    public static function setBinary(string $binary): void
-    {
-        ParallelArtisan::setBinary($binary);
-    }
-
-    /**
-     * @param Request|null $request
-     * @return $this
-     */
-    public static function create(Request $request = null): self
-    {
-        return new static($request);
-    }
-
-    /**
-     * @param Response $response
-     * @return Response
-     */
-    private function updateCookies(Response $response): Response
-    {
-        $cookies = $response->headers->getCookies();
-        foreach ($cookies as $cookie) {
-            $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param string $message
-     * @return Response
-     */
-    private function toResponse(string $message): Response
-    {
-        $response = Message::parseResponse(PreventEcho::prevent($message));
-
-        return new Response((string) $response->getBody(), $response->getStatusCode(), $response->getHeaders());
     }
 
     /**
@@ -134,5 +110,19 @@ class ParallelRequest
             '--guard' => $this->guard,
             '--ansi',
         ];
+    }
+
+    /**
+     * @param Response $response
+     * @return Response
+     */
+    private function updateCookies(Response $response): Response
+    {
+        $cookies = $response->headers->getCookies();
+        foreach ($cookies as $cookie) {
+            $this->withCookie($cookie->getName(), rawurldecode($cookie->getValue()));
+        }
+
+        return $response;
     }
 }

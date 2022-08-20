@@ -2,12 +2,12 @@
 
 namespace Recca0120\LaravelParallel\Tests\Console;
 
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Http\Response;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
+use Recca0120\LaravelParallel\ResponseIdentifier;
 use Recca0120\LaravelParallel\Tests\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -39,7 +39,7 @@ class ParallelCommandTest extends TestCase
             '--followRedirects' => false,
         ]);
 
-        $user = json_decode((string) $response->getBody(), true);
+        $user = json_decode($response->content(), true);
         self::assertEquals('recca0120@gmail.com', $user['email']);
     }
 
@@ -54,13 +54,13 @@ class ParallelCommandTest extends TestCase
             '--data' => json_encode(['email' => $this->user['email'], 'password' => $this->user['password']]),
         ]);
 
-        $user = json_decode((string) $response->getBody(), true);
+        $user = json_decode($response->content(), true);
         self::assertEquals('recca0120@gmail.com', $user['email']);
     }
 
     public function hasBodyProvider(): array
     {
-        return array_reduce(['post', 'put', 'patch', 'options', 'delete'], function ($acc, $method) {
+        return array_reduce(['post', 'put', 'patch', 'options', 'delete'], static function ($acc, $method) {
             return array_merge($acc, [[$method], [$method.'Json']]);
         }, []);
     }
@@ -78,6 +78,6 @@ class ParallelCommandTest extends TestCase
         $commandTester->execute($arguments);
         $output = $commandTester->getDisplay();
 
-        return Message::parseResponse($output);
+        return ResponseIdentifier::fromMessage($output)->toResponse();
     }
 }

@@ -3,14 +3,13 @@
 namespace Recca0120\LaravelParallel\Console;
 
 use Exception;
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Psr7\Response as Psr7Response;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
 use Illuminate\Support\Facades\Auth;
+use Recca0120\LaravelParallel\ResponseIdentifier;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,7 +88,7 @@ class ParallelCommand extends Command
             $this->app['log']->debug($e);
             $response = new Response($e->getMessage(), 500);
         }
-        $output->write($this->toMessage($response));
+        $output->write((string) ResponseIdentifier::fromSymfonyResponse($response));
 
         return $response->isSuccessful() ? 0 : 1;
     }
@@ -109,6 +108,120 @@ class ParallelCommand extends Command
             ->handleAuthenticatable($input);
 
         return $this->makeTestResponse($input)->baseResponse;
+    }
+
+    private function handleAuthenticatable(InputInterface $input): self
+    {
+        $serialized = $input->getOption('user');
+
+        if (empty($serialized)) {
+            return $this;
+        }
+
+        $user = $this->getRestoredPropertyValue(
+            unserialize(base64_decode($serialized), [Authenticatable::class, ModelIdentifier::class])
+        );
+
+        Auth::guard($input->getOption('guard'))->setUser($user);
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleWithCredentials(InputInterface $input): self
+    {
+        if ($input->getOption('withCredentials')) {
+            $this->withCredentials();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleFollowRedirects(InputInterface $input): self
+    {
+        if ($input->getOption('followRedirects')) {
+            $this->followingRedirects();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleServerVariables(InputInterface $input): self
+    {
+        if ($input->getOption('serverVariables')) {
+            $this->withServerVariables(self::getArrayFromOption($input, 'serverVariables'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param string $name
+     * @return array
+     */
+    private static function getArrayFromOption(InputInterface $input, string $name): array
+    {
+        return json_decode($input->getOption($name), true) ?: [];
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleWithUnencryptedCookies(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withUnencryptedCookies');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withUnencryptedCookies($value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleWithMiddleware(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withMiddleware');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withMiddleware(...$value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @return ParallelCommand
+     */
+    private function handleWithoutMiddleware(InputInterface $input): self
+    {
+        $values = self::getArrayFromOption($input, 'withoutMiddleware');
+        if (! empty($values)) {
+            foreach ($values as $value) {
+                $this->withoutMiddleware(...$value);
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -139,116 +252,6 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param Response $response
-     * @return string
-     */
-    private function toMessage(Response $response): string
-    {
-        return Message::toString(new Psr7Response(
-            $response->getStatusCode(),
-            $response->headers->all(),
-            $response->getContent()
-        ));
-    }
-
-    /**
-     * @param InputInterface $input
-     * @param string $name
-     * @return array
-     */
-    private static function getArrayFromOption(InputInterface $input, string $name): array
-    {
-        return json_decode($input->getOption($name), true) ?: [];
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleWithoutMiddleware(InputInterface $input): self
-    {
-        $values = self::getArrayFromOption($input, 'withoutMiddleware');
-        if (! empty($values)) {
-            foreach ($values as $value) {
-                $this->withoutMiddleware(...$value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleWithMiddleware(InputInterface $input): self
-    {
-        $values = self::getArrayFromOption($input, 'withMiddleware');
-        if (! empty($values)) {
-            foreach ($values as $value) {
-                $this->withMiddleware(...$value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleWithUnencryptedCookies(InputInterface $input): self
-    {
-        $values = self::getArrayFromOption($input, 'withUnencryptedCookies');
-        if (! empty($values)) {
-            foreach ($values as $value) {
-                $this->withUnencryptedCookies($value);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleServerVariables(InputInterface $input): self
-    {
-        if ($input->getOption('serverVariables')) {
-            $this->withServerVariables(self::getArrayFromOption($input, 'serverVariables'));
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleFollowRedirects(InputInterface $input): self
-    {
-        if ($input->getOption('followRedirects')) {
-            $this->followingRedirects();
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param InputInterface $input
-     * @return ParallelCommand
-     */
-    private function handleWithCredentials(InputInterface $input): self
-    {
-        if ($input->getOption('withCredentials')) {
-            $this->withCredentials();
-        }
-
-        return $this;
-    }
-
-    /**
      * @param array $headers
      * @return array
      */
@@ -259,22 +262,5 @@ class ParallelCommand extends Command
         }
 
         return $headers;
-    }
-
-    private function handleAuthenticatable(InputInterface $input): self
-    {
-        $serialized = $input->getOption('user');
-
-        if (empty($serialized)) {
-            return $this;
-        }
-
-        $user = $this->getRestoredPropertyValue(
-            unserialize(base64_decode($serialized), [Authenticatable::class, ModelIdentifier::class])
-        );
-
-        Auth::guard($input->getOption('guard'))->setUser($user);
-
-        return $this;
     }
 }

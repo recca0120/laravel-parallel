@@ -8,7 +8,7 @@
 
 ## Requirements
 
-- **Laravel** versions 5.7, 6.x, 7.x and 8.x
+- **Laravel** versions 5.7, 6.x, 7.x, 8.x and 9.x
 - **PHP** 7.0 or greater
 
 ## Installation
@@ -176,7 +176,7 @@ class RaceConditionTest extends TestCase
             ->assertJsonPath('quantity', 0);
     }
 
-    public function test_use_times_to_test_race_condition()
+    public function test_multiple_times_to_test_race_condition()
     {
         $request = $this->app->make(ParallelRequest::class);
 
