@@ -55,6 +55,16 @@ class ResponseIdentifier
         return new self($data['body'], (int) $parts[1], $data['headers']);
     }
 
+    public function toMessage(): string
+    {
+        return (string) $this->toResponse();
+    }
+
+    public function toResponse(): Response
+    {
+        return new Response($this->content, $this->status, $this->headers);
+    }
+
     /**
      * Parses an HTTP message into an associative array.
      *
@@ -68,7 +78,7 @@ class ResponseIdentifier
      *
      * @param string $message HTTP request or response to parse.
      */
-    public static function parseMessage(string $message): array
+    private static function parseMessage(string $message): array
     {
         if (! $message) {
             throw new InvalidArgumentException('Invalid message');
@@ -121,15 +131,5 @@ class ResponseIdentifier
             'headers' => $headers,
             'body' => $body,
         ];
-    }
-
-    public function toMessage(): string
-    {
-        return (string) $this->toResponse();
-    }
-
-    public function toResponse(): Response
-    {
-        return new Response($this->content, $this->status, $this->headers);
     }
 }
