@@ -68,7 +68,7 @@ trait MakesHttpRequests
     /**
      * Define additional headers to be sent with the request.
      *
-     * @param array $headers
+     * @param  array  $headers
      * @return $this
      */
     public function withHeaders(array $headers): self
@@ -81,8 +81,8 @@ trait MakesHttpRequests
     /**
      * Add a header to be sent with the request.
      *
-     * @param string $name
-     * @param string $value
+     * @param  string  $name
+     * @param  string  $value
      * @return $this
      */
     public function withHeader(string $name, string $value): self
@@ -95,8 +95,8 @@ trait MakesHttpRequests
     /**
      * Add an authorization token for the request.
      *
-     * @param string $token
-     * @param string $type
+     * @param  string  $token
+     * @param  string  $type
      * @return $this
      */
     public function withToken(string $token, string $type = 'Bearer'): self
@@ -119,7 +119,7 @@ trait MakesHttpRequests
     /**
      * Define a set of server variables to be sent with the requests.
      *
-     * @param array $server
+     * @param  array  $server
      * @return $this
      */
     public function withServerVariables(array $server): self
@@ -132,7 +132,7 @@ trait MakesHttpRequests
     /**
      * Disable middleware for the test.
      *
-     * @param string|array|null $middleware
+     * @param  string|array|null  $middleware
      * @return $this
      */
     public function withoutMiddleware($middleware = null): self
@@ -145,7 +145,7 @@ trait MakesHttpRequests
     /**
      * Enable the given middleware for the test.
      *
-     * @param string|array|null $middleware
+     * @param  string|array|null  $middleware
      * @return $this
      */
     public function withMiddleware($middleware = null): self
@@ -158,7 +158,7 @@ trait MakesHttpRequests
     /**
      * Define additional cookies to be sent with the request.
      *
-     * @param array $cookies
+     * @param  array  $cookies
      * @return $this
      */
     public function withCookies(array $cookies): self
@@ -171,8 +171,8 @@ trait MakesHttpRequests
     /**
      * Add a cookie to be sent with the request.
      *
-     * @param string $name
-     * @param string $value
+     * @param  string  $name
+     * @param  string  $value
      * @return $this
      */
     public function withCookie(string $name, string $value): self
@@ -185,7 +185,7 @@ trait MakesHttpRequests
     /**
      * Define additional cookies will not be encrypted before sending with the request.
      *
-     * @param array $cookies
+     * @param  array  $cookies
      * @return $this
      */
     public function withUnencryptedCookies(array $cookies): self
@@ -198,8 +198,8 @@ trait MakesHttpRequests
     /**
      * Add a cookie will not be encrypted before sending with the request.
      *
-     * @param string $name
-     * @param string $value
+     * @param  string  $name
+     * @param  string  $value
      * @return $this
      */
     public function withUnencryptedCookie(string $name, string $value): self
@@ -248,7 +248,7 @@ trait MakesHttpRequests
     /**
      * Set the referer header and previous URL session value in order to simulate a previous request.
      *
-     * @param string $url
+     * @param  string  $url
      * @return $this
      */
     public function from(string $url): self
@@ -259,8 +259,8 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a GET request.
      *
-     * @param string $uri
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function get(string $uri, array $headers = []): PromiseInterface
@@ -274,8 +274,8 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a GET request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function getJson(string $uri, array $headers = []): PromiseInterface
@@ -286,9 +286,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a POST request.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function post(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -302,9 +302,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a POST request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function postJson(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -315,9 +315,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a PUT request.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function put(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -331,9 +331,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a PUT request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function putJson(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -344,9 +344,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a PATCH request.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function patch(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -360,9 +360,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a PATCH request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function patchJson(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -373,9 +373,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a DELETE request.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function delete(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -389,9 +389,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with a DELETE request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function deleteJson(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -402,9 +402,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with an OPTIONS request.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function options(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -418,9 +418,9 @@ trait MakesHttpRequests
     /**
      * Visit the given URI with an OPTIONS request, expecting a JSON response.
      *
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function optionsJson(string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -431,10 +431,10 @@ trait MakesHttpRequests
     /**
      * Call the given URI with a JSON request.
      *
-     * @param string $method
-     * @param string $uri
-     * @param array $data
-     * @param array $headers
+     * @param  string  $method
+     * @param  string  $uri
+     * @param  array  $data
+     * @param  array  $headers
      * @return PromiseInterface
      */
     public function json(string $method, string $uri, array $data = [], array $headers = []): PromiseInterface
@@ -461,19 +461,19 @@ trait MakesHttpRequests
     /**
      * Call the given URI and return the Response.
      *
-     * @param string $method
-     * @param string $uri
-     * @param array $parameters
-     * @param array $cookies
-     * @param array $files
-     * @param array $server
-     * @param null $content
+     * @param  string  $method
+     * @param  string  $uri
+     * @param  array  $parameters
+     * @param  array  $cookies
+     * @param  array  $files
+     * @param  array  $server
+     * @param  null  $content
      * @return PromiseInterface
      */
     abstract public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface;
 
     /**
-     * @param array $headers
+     * @param  array  $headers
      * @return array
      */
     private function transformHeadersToServerVars(array $headers): array
@@ -490,7 +490,7 @@ trait MakesHttpRequests
     }
 
     /**
-     * @param string $name
+     * @param  string  $name
      * @return string
      */
     private function formatServerHeaderKey(string $name): string

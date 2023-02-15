@@ -71,7 +71,8 @@ class ParallelRequestTest extends TestCase
 
     /**
      * @dataProvider httpStatusCodeProvider
-     * @param int $code
+     *
+     * @param  int  $code
      */
     public function test_it_should_assert_http_status_code(int $code): void
     {

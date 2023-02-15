@@ -14,18 +14,22 @@ class ParallelArtisan
      * @var string|null
      */
     private static $phpBinary;
+
     /**
      * @var string
      */
     private static $binary = 'artisan';
+
     /**
      * @var Request
      */
     private $request;
+
     /**
      * @var array
      */
     private $env;
+
     /**
      * @var Process
      */

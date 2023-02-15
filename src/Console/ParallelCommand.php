@@ -28,13 +28,14 @@ class ParallelCommand extends Command
      * @var string
      */
     protected static $defaultName = self::COMMAND_NAME;
+
     /**
      * @var Application
      */
     protected $app;
 
     /**
-     * @param Application|null $app
+     * @param  Application|null  $app
      */
     public function __construct(Application $app = null)
     {
@@ -43,7 +44,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param Application|null $app
+     * @param  Application|null  $app
      * @return $this
      */
     public function setLaravel(Application $app = null): self
@@ -76,8 +77,8 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param  InputInterface  $input
+     * @param  OutputInterface  $output
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -94,7 +95,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return Response
      */
     private function makeRequest(InputInterface $input): Response
@@ -128,7 +129,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleWithCredentials(InputInterface $input): self
@@ -141,7 +142,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleFollowRedirects(InputInterface $input): self
@@ -154,7 +155,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleServerVariables(InputInterface $input): self
@@ -167,8 +168,8 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param string $name
+     * @param  InputInterface  $input
+     * @param  string  $name
      * @return array
      */
     private static function getArrayFromOption(InputInterface $input, string $name): array
@@ -177,7 +178,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleWithUnencryptedCookies(InputInterface $input): self
@@ -193,7 +194,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleWithMiddleware(InputInterface $input): self
@@ -209,7 +210,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return ParallelCommand
      */
     private function handleWithoutMiddleware(InputInterface $input): self
@@ -225,7 +226,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
+     * @param  InputInterface  $input
      * @return \Illuminate\Testing\TestResponse
      */
     private function makeTestResponse(InputInterface $input)
@@ -252,7 +253,7 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param array $headers
+     * @param  array  $headers
      * @return array
      */
     private function handleFrom(array $headers): array

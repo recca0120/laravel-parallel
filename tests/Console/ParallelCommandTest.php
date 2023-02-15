@@ -66,7 +66,7 @@ class ParallelCommandTest extends TestCase
     }
 
     /**
-     * @param array $arguments
+     * @param  array  $arguments
      * @return Response
      */
     private function givenResponse(array $arguments = []): Response

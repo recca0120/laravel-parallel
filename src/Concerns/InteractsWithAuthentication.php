@@ -13,6 +13,7 @@ trait InteractsWithAuthentication
      * @var string|null
      */
     protected $guard;
+
     /**
      * @var string|null
      */
@@ -21,8 +22,8 @@ trait InteractsWithAuthentication
     /**
      * Set the currently logged in user for the application.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param string|null $guard
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  string|null  $guard
      * @return $this
      */
     public function actingAs(UserContract $user, $guard = null)
@@ -33,8 +34,8 @@ trait InteractsWithAuthentication
     /**
      * Set the currently logged in user for the application.
      *
-     * @param \Illuminate\Contracts\Auth\Authenticatable $user
-     * @param string|null $guard
+     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
+     * @param  string|null  $guard
      * @return $this
      */
     public function be(UserContract $user, $guard = null)

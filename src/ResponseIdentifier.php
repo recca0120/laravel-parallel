@@ -9,16 +9,19 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 class ResponseIdentifier
 {
     private const HEADER_REGEX = "(^([^()<>@,;:\\\"/[\]?={}\x01-\x20\x7F]++):[ \t]*+((?:[ \t]*+[\x21-\x7E\x80-\xFF]++)*+)[ \t]*+\r?\n)m";
+
     private const HEADER_FOLD_REGEX = "(\r?\n[ \t]++)";
 
     /**
      * @var string
      */
     public $content;
+
     /**
      * @var int
      */
     public $status;
+
     /**
      * @var array
      */
@@ -76,7 +79,7 @@ class ResponseIdentifier
      *
      * @license https://github.com/guzzle/psr7/blob/2.4.0/LICENSE
      *
-     * @param string $message HTTP request or response to parse.
+     * @param  string  $message HTTP request or response to parse.
      */
     private static function parseMessage(string $message): array
     {

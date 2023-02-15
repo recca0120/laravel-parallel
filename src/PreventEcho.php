@@ -10,7 +10,7 @@ class PreventEcho
     private static $echoCallable = [self::class, 'output'];
 
     /**
-     * @param string $output
+     * @param  string  $output
      * @return string
      */
     public static function prevent(string $output): string
@@ -27,7 +27,7 @@ class PreventEcho
     }
 
     /**
-     * @param callable $callable
+     * @param  callable  $callable
      */
     public static function echoUsing(callable $callable): void
     {
@@ -35,7 +35,7 @@ class PreventEcho
     }
 
     /**
-     * @param string $output
+     * @param  string  $output
      */
     private static function echoOutput(string $output): void
     {
