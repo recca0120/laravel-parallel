@@ -45,8 +45,15 @@ class ParallelRequest
      *
      * @param  null  $content
      */
-    public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
-    {
+    public function call(
+        string $method,
+        string $uri,
+        array $parameters = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+        $content = null
+    ): PromiseInterface {
         $artisan = new ParallelArtisan($this->request, $this->serverVariables);
         $params = $this->toParams($uri, $method, $parameters, $cookies, $files, $server, $content);
 
@@ -63,8 +70,15 @@ class ParallelRequest
         return new BatchRequest($this, $times);
     }
 
-    private function toParams(string $uri, string $method, array $parameters, array $cookies, array $files, array $server, $content): array
-    {
+    private function toParams(
+        string $uri,
+        string $method,
+        array $parameters,
+        array $cookies,
+        array $files,
+        array $server,
+        $content
+    ): array {
         return [
             $uri,
             '--method' => $method,
