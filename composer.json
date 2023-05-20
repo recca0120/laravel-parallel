@@ -3,7 +3,6 @@
     "description": "",
     "keywords": [
         "laravel",
-        "testing",
         "parallel",
         "parallel request"
     ],

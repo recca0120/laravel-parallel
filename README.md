@@ -21,20 +21,7 @@ composer require recca0120/laravel-parallel
 
 ## Usage
 
-1. set a real database in phpunit.xml
-
-```xml
-
-<phpunit>
-    <php>
-        <!-- DB_CONNECTION can't be %memory% -->
-        <server name="DB_CONNECTION" value="sqlite"/>
-        <server name="DB_DATABASE" value="database/database.sqlite"/>
-    </php>
-</phpunit>
-```
-
-2. make a product migration
+- make a product migration
 
 ```php
 <?php
@@ -74,7 +61,7 @@ class CreateProductsTable extends Migration
 
 ```
 
-3. define product model `App\Models\Product`
+- define product model `App\Models\Product`
 
 ```php
 <?php
@@ -104,7 +91,7 @@ class Product extends Model
 
 ```
 
-4. define router in `routes/web.php`
+- define router in `routes/web.php`
 
 ```php
 <?php
@@ -133,7 +120,7 @@ Route::post('/product/{productId}', function ($productId) {
 
 ```
 
-5. testing
+- testing
 
 ```php
 <?php
@@ -142,24 +129,23 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Recca0120\LaravelParallel\Tests\Concerns\WithParallelPhyiscalDatabase;
 use Recca0120\LaravelParallel\Tests\ParallelRequest;
 use Tests\TestCase;
 
 class RaceConditionTest extends TestCase
 {
     use DatabaseMigrations;
+    use WithParallelPhyiscalDatabase;
 
     private $product;
     private $quantity = 10;
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->product = Product::create(['name' => 'test', 'quantity' => $this->quantity]);
-    }
-
     public function test_race_condition()
     {
+        $this->useParallelPhyiscalDatabase();
+
+        $this->product = Product::create(['name' => 'test', 'quantity' => $this->quantity]);
         $request = $this->app->make(ParallelRequest::class);
 
         $promises = collect();
@@ -178,6 +164,10 @@ class RaceConditionTest extends TestCase
 
     public function test_multiple_times_to_test_race_condition()
     {
+        $this->useParallelPhyiscalDatabase();
+
+        $this->product = Product::create(['name' => 'test', 'quantity' => $this->quantity]);
+
         $request = $this->app->make(ParallelRequest::class);
 
         $promises = collect($request->times(10)->post('/product/'.$this->product->id));

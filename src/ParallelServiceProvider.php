@@ -2,6 +2,7 @@
 
 namespace Recca0120\LaravelParallel;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
 
@@ -19,5 +20,12 @@ class ParallelServiceProvider extends ServiceProvider
         ]);
 
         $this->commands([ParallelCommand::class]);
+
+        $this->app->bind(ParallelRequest::class, function () {
+            /** @var Request $request */
+            $request = app('request');
+
+            return (new ParallelRequest($request))->withServerVariables($request->server->all());
+        });
     }
 }
