@@ -71,8 +71,6 @@ class ParallelRequestTest extends TestCase
 
     /**
      * @dataProvider httpStatusCodeProvider
-     *
-     * @param  int  $code
      */
     public function test_it_should_assert_http_status_code(int $code): void
     {
@@ -172,7 +170,7 @@ class ParallelRequestTest extends TestCase
     /**
      * @return int[][]
      */
-    public function httpStatusCodeProvider(): array
+    public static function httpStatusCodeProvider(): array
     {
         return array_map(static function ($code) {
             return [$code];

@@ -21,24 +21,18 @@ class ParallelRequest
 
     /**
      * AsyncRequest constructor.
-     *
-     * @param  Request|null  $request
      */
     public function __construct(Request $request = null)
     {
         $this->request = $request ?? Request::capture();
     }
 
-    /**
-     * @param  string  $binary
-     */
     public static function setBinary(string $binary): void
     {
         ParallelArtisan::setBinary($binary);
     }
 
     /**
-     * @param  Request|null  $request
      * @return $this
      */
     public static function create(Request $request = null): self
@@ -49,14 +43,7 @@ class ParallelRequest
     /**
      * Call the given URI and return the Response.
      *
-     * @param  string  $method
-     * @param  string  $uri
-     * @param  array  $parameters
-     * @param  array  $cookies
-     * @param  array  $files
-     * @param  array  $server
      * @param  null  $content
-     * @return PromiseInterface
      */
     public function call(string $method, string $uri, array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null): PromiseInterface
     {
@@ -71,25 +58,11 @@ class ParallelRequest
             });
     }
 
-    /**
-     * @param  int  $times
-     * @return BatchRequest
-     */
     public function times(int $times): BatchRequest
     {
         return new BatchRequest($this, $times);
     }
 
-    /**
-     * @param  string  $uri
-     * @param  string  $method
-     * @param  array  $parameters
-     * @param  array  $cookies
-     * @param  array  $files
-     * @param  array  $server
-     * @param $content
-     * @return array
-     */
     private function toParams(string $uri, string $method, array $parameters, array $cookies, array $files, array $server, $content): array
     {
         return [
@@ -113,10 +86,6 @@ class ParallelRequest
         ];
     }
 
-    /**
-     * @param  Response  $response
-     * @return Response
-     */
     private function updateCookies(Response $response): Response
     {
         $cookies = $response->headers->getCookies();

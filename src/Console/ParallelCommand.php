@@ -34,9 +34,6 @@ class ParallelCommand extends Command
      */
     protected $app;
 
-    /**
-     * @param  Application|null  $app
-     */
     public function __construct(Application $app = null)
     {
         parent::__construct();
@@ -44,7 +41,6 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param  Application|null  $app
      * @return $this
      */
     public function setLaravel(Application $app = null): self
@@ -76,11 +72,6 @@ class ParallelCommand extends Command
         $this->addOption('guard', null, InputOption::VALUE_OPTIONAL);
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @param  OutputInterface  $output
-     * @return int
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
@@ -94,10 +85,6 @@ class ParallelCommand extends Command
         return $response->isSuccessful() ? 0 : 1;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return Response
-     */
     private function makeRequest(InputInterface $input): Response
     {
         $this->handleWithoutMiddleware($input)
@@ -128,10 +115,6 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleWithCredentials(InputInterface $input): self
     {
         if ($input->getOption('withCredentials')) {
@@ -141,10 +124,6 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleFollowRedirects(InputInterface $input): self
     {
         if ($input->getOption('followRedirects')) {
@@ -154,10 +133,6 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleServerVariables(InputInterface $input): self
     {
         if ($input->getOption('serverVariables')) {
@@ -167,20 +142,11 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @param  string  $name
-     * @return array
-     */
     private static function getArrayFromOption(InputInterface $input, string $name): array
     {
         return json_decode($input->getOption($name), true) ?: [];
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleWithUnencryptedCookies(InputInterface $input): self
     {
         $values = self::getArrayFromOption($input, 'withUnencryptedCookies');
@@ -193,10 +159,6 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleWithMiddleware(InputInterface $input): self
     {
         $values = self::getArrayFromOption($input, 'withMiddleware');
@@ -209,10 +171,6 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    /**
-     * @param  InputInterface  $input
-     * @return ParallelCommand
-     */
     private function handleWithoutMiddleware(InputInterface $input): self
     {
         $values = self::getArrayFromOption($input, 'withoutMiddleware');
@@ -226,7 +184,6 @@ class ParallelCommand extends Command
     }
 
     /**
-     * @param  InputInterface  $input
      * @return \Illuminate\Testing\TestResponse
      */
     private function makeTestResponse(InputInterface $input)
@@ -252,10 +209,6 @@ class ParallelCommand extends Command
             : $this->{$method}($uri, self::getArrayFromOption($input, 'data'), $headers);
     }
 
-    /**
-     * @param  array  $headers
-     * @return array
-     */
     private function handleFrom(array $headers): array
     {
         if (array_key_exists('HTTP_REFERER', $headers)) {

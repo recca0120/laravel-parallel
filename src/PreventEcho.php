@@ -9,10 +9,6 @@ class PreventEcho
      */
     private static $echoCallable = [self::class, 'output'];
 
-    /**
-     * @param  string  $output
-     * @return string
-     */
     public static function prevent(string $output): string
     {
         preg_match('/^(?<output>.*)(?<message>HTTP\/.*\s\d{3}([^\r\n]*)\r\n.*)/s', $output, $matches);
@@ -26,17 +22,11 @@ class PreventEcho
         return $matches['message'];
     }
 
-    /**
-     * @param  callable  $callable
-     */
     public static function echoUsing(callable $callable): void
     {
         self::$echoCallable = $callable;
     }
 
-    /**
-     * @param  string  $output
-     */
     private static function echoOutput(string $output): void
     {
         $cb = self::$echoCallable;

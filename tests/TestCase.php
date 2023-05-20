@@ -23,7 +23,6 @@ class TestCase extends BaseTestCase
      * Get package providers.
      *
      * @param  Application  $app
-     * @return array
      */
     protected function getPackageProviders($app): array
     {
@@ -34,7 +33,6 @@ class TestCase extends BaseTestCase
      * Define routes setup.
      *
      * @param  Router  $router
-     * @return void
      */
     protected function defineRoutes($router): void
     {

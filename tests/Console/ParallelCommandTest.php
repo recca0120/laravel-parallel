@@ -58,17 +58,13 @@ class ParallelCommandTest extends TestCase
         self::assertEquals('recca0120@gmail.com', $user['email']);
     }
 
-    public function hasBodyProvider(): array
+    public static function hasBodyProvider(): array
     {
         return array_reduce(['post', 'put', 'patch', 'options', 'delete'], static function ($acc, $method) {
             return array_merge($acc, [[$method], [$method.'Json']]);
         }, []);
     }
 
-    /**
-     * @param  array  $arguments
-     * @return Response
-     */
     private function givenResponse(array $arguments = []): Response
     {
         $application = new Application();

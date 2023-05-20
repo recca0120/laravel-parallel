@@ -69,9 +69,6 @@ class BatchRequest
 
     /**
      * Batch constructor.
-     *
-     * @param  ParallelRequest  $request
-     * @param  int  $times
      */
     public function __construct(ParallelRequest $request, int $times)
     {
@@ -80,8 +77,6 @@ class BatchRequest
     }
 
     /**
-     * @param $method
-     * @param $arguments
      * @return mixed
      */
     public function __call($method, $arguments)
@@ -94,7 +89,6 @@ class BatchRequest
     }
 
     /**
-     * @param  callable  $callable
      * @return PromiseInterface[]
      */
     public function handle(callable $callable): array
