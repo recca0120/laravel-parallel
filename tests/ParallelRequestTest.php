@@ -74,7 +74,7 @@ class ParallelRequestTest extends TestCase
      */
     public function test_it_should_assert_http_status_code(int $code): void
     {
-        $response = ParallelRequest::create()->get('/status_code/'.$code)->wait();
+        $response = ParallelRequest::create()->getJson('/status_code/'.$code)->wait();
 
         $response->assertStatus($code);
     }

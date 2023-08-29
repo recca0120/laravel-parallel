@@ -14,9 +14,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-require_once __DIR__.'/../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-$laravel = new class() {
+$laravel = new class()
+{
     use CreatesApplication;
     use setupDatabase;
     use HandlesRoutes;
@@ -108,7 +109,7 @@ $laravel = new class() {
     {
         $this->app = $this->createApplication();
 
-        $this->setUpApplicationRoutes();
+        $this->setUpApplicationRoutes($this->app);
 
         return $this->app;
     }
