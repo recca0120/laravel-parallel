@@ -5,8 +5,6 @@ namespace Recca0120\LaravelParallel;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -73,21 +71,6 @@ class ParallelArtisan
     public static function setBinary(string $binary): void
     {
         self::$binary = $binary;
-    }
-
-    public static function setConnection(string $connection): void
-    {
-        config(
-            collect(Arr::dot(config()->all()))
-                ->filter(function ($value, $key) {
-                    return $value && Str::endsWith($key, 'database.connection');
-                })
-                ->map(function () use ($connection) {
-                    return $connection;
-                })
-                ->merge(['database.default' => $connection])
-                ->toArray()
-        );
     }
 
     private function getCommand(string $command, array $parameters): array
