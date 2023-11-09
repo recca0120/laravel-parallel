@@ -5,6 +5,7 @@ namespace Recca0120\LaravelParallel;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
 use Recca0120\LaravelParallel\Concerns\InteractsWithAuthentication;
 use Recca0120\LaravelParallel\Concerns\MakesHttpRequests;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
@@ -96,6 +97,7 @@ class ParallelRequest
             '--disableCookieEncryption' => ! $this->encryptCookies,
             '--user' => $this->user,
             '--guard' => $this->guard,
+            '--date' => Carbon::getTestNow()?->toIso8601String(),
             '--ansi',
         ];
     }

@@ -2,6 +2,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Orchestra\Testbench\Concerns\CreatesApplication;
@@ -102,6 +103,10 @@ $laravel = new class()
 
         $router->middleware('auth:api')->post('/api/user', function (Request $request) {
             return response()->json($request->user());
+        });
+
+        $router->middleware('web')->get('/date', function (Request $request) {
+            return Carbon::now()->toIso8601String();
         });
     }
 
