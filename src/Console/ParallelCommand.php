@@ -2,13 +2,13 @@
 
 namespace Recca0120\LaravelParallel\Console;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Recca0120\LaravelParallel\ResponseIdentifier;
 use Symfony\Component\Console\Command\Command;
@@ -71,7 +71,7 @@ class ParallelCommand extends Command
         $this->addOption('disableCookieEncryption', null, InputOption::VALUE_REQUIRED);
         $this->addOption('user', null, InputOption::VALUE_OPTIONAL);
         $this->addOption('guard', null, InputOption::VALUE_OPTIONAL);
-        $this->addOption('date', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('testNow', null, InputOption::VALUE_OPTIONAL);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -96,7 +96,7 @@ class ParallelCommand extends Command
             ->handleFollowRedirects($input)
             ->handleWithCredentials($input)
             ->handleAuthenticatable($input)
-            ->handleDate($input);
+            ->handleTestNow($input);
 
         return $this->makeTestResponse($input)->baseResponse;
     }
@@ -186,12 +186,12 @@ class ParallelCommand extends Command
         return $this;
     }
 
-    private function handleDate(InputInterface $input): self
+    private function handleTestNow(InputInterface $input): self
     {
-        $date = $input->getOption('date');
+        $testNow = $input->getOption('testNow');
 
-        if (! empty($date)) {
-            Carbon::setTestNow($date);
+        if (! empty($testNow)) {
+            Carbon::setTestNow($testNow);
         }
 
         return $this;

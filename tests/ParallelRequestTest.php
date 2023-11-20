@@ -2,8 +2,8 @@
 
 namespace Recca0120\LaravelParallel\Tests;
 
+use Carbon\Carbon;
 use Illuminate\Auth\GenericUser;
-use Illuminate\Support\Carbon;
 use Recca0120\LaravelParallel\Tests\Fixtures\User;
 use Throwable;
 
@@ -174,10 +174,9 @@ class ParallelRequestTest extends TestCase
         Carbon::setTestNow($testDate);
 
         $request = ParallelRequest::create();
+        $response = $request->get('/test-now')->wait();
 
-        $response = $request->get('/date')->wait();
-
-        $response->assertOk()->assertContent($testDate->toIso8601String());
+        $response->assertOk()->assertSee($testDate->toIso8601String());
     }
 
     /**

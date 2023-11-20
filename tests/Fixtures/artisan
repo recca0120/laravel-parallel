@@ -2,7 +2,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Orchestra\Testbench\Concerns\CreatesApplication;
@@ -15,10 +14,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
-$laravel = new class()
-{
+$laravel = new class() {
     use CreatesApplication;
     use setupDatabase;
     use HandlesRoutes;
@@ -105,8 +103,8 @@ $laravel = new class()
             return response()->json($request->user());
         });
 
-        $router->middleware('web')->get('/date', function (Request $request) {
-            return Carbon::now()->toIso8601String();
+        $router->middleware('web')->get('/test-now', function (Request $request) {
+            return now()->toIso8601String();
         });
     }
 
@@ -130,8 +128,8 @@ class EchoCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @param  InputInterface  $input
+     * @param  OutputInterface  $output
      * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
