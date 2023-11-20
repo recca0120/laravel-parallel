@@ -3,6 +3,7 @@
 namespace Recca0120\LaravelParallel\Tests;
 
 use Illuminate\Auth\GenericUser;
+use Illuminate\Support\Carbon;
 use Recca0120\LaravelParallel\Tests\Fixtures\User;
 use Throwable;
 
@@ -165,6 +166,18 @@ class ParallelRequestTest extends TestCase
         }
 
         self::assertLessThan(5, microtime(true) - $startTime);
+    }
+
+    public function test_it_should_set_test_date(): void
+    {
+        $testDate = Carbon::parse('2023-01-01 00:00:00');
+        Carbon::setTestNow($testDate);
+
+        $request = ParallelRequest::create();
+
+        $response = $request->get('/date')->wait();
+
+        $response->assertOk()->assertContent($testDate->toIso8601String());
     }
 
     /**

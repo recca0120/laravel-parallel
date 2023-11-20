@@ -8,6 +8,7 @@ use Illuminate\Contracts\Database\ModelIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Recca0120\LaravelParallel\ResponseIdentifier;
 use Symfony\Component\Console\Command\Command;
@@ -70,6 +71,7 @@ class ParallelCommand extends Command
         $this->addOption('disableCookieEncryption', null, InputOption::VALUE_REQUIRED);
         $this->addOption('user', null, InputOption::VALUE_OPTIONAL);
         $this->addOption('guard', null, InputOption::VALUE_OPTIONAL);
+        $this->addOption('date', null, InputOption::VALUE_OPTIONAL);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -93,7 +95,8 @@ class ParallelCommand extends Command
             ->handleServerVariables($input)
             ->handleFollowRedirects($input)
             ->handleWithCredentials($input)
-            ->handleAuthenticatable($input);
+            ->handleAuthenticatable($input)
+            ->handleDate($input);
 
         return $this->makeTestResponse($input)->baseResponse;
     }
@@ -178,6 +181,17 @@ class ParallelCommand extends Command
             foreach ($values as $value) {
                 $this->withoutMiddleware(...$value);
             }
+        }
+
+        return $this;
+    }
+
+    private function handleDate(InputInterface $input): self
+    {
+        $date = $input->getOption('date');
+
+        if (! empty($date)) {
+            Carbon::setTestNow($date);
         }
 
         return $this;
