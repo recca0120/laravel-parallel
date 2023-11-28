@@ -13,7 +13,7 @@ class ParallelServiceProvider extends ServiceProvider
         config([
             'database.connections.laravel-parallel' => [
                 'driver' => 'sqlite',
-                'database' => database_path('laravel-parallel.sqlite'),
+                'database' => \env('DB_PARALLEL_DATABASE', database_path('laravel-parallel.sqlite')),
                 'prefix' => '',
                 'foreign_key_constraints' => true,
             ],
