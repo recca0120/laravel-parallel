@@ -8,11 +8,11 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Auth;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Recca0120\LaravelParallel\ParallelServiceProvider;
-use Recca0120\LaravelParallel\Tests\Fixtures\setupDatabase;
+use Recca0120\LaravelParallel\Tests\Fixtures\SetupDatabase;
 
 class TestCase extends BaseTestCase
 {
-    use setupDatabase;
+    use SetupDatabase;
 
     protected function getEnvironmentSetUp($app)
     {

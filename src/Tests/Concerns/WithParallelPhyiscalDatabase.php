@@ -19,9 +19,12 @@ trait WithParallelPhyiscalDatabase
 
     private $parallelDatabaseName = 'laravel-parallel';
 
+    private $beforeRefreshParallelPhyiscalDatabaseCallbacks = [];
+
     public function useParallelPhyiscalDatabase(): void
     {
         $this->setParallelPhyiscalDatabase();
+        $this->callBeforeRefreshParallelPhyiscalDatabase();
         $this->refreshParallelPhyiscalDatabase();
         $this->bindParallelRequest();
     }
@@ -45,6 +48,13 @@ trait WithParallelPhyiscalDatabase
         config($config);
 
         File::put(config('database.connections.'.$this->parallelDatabaseName.'.database'), '');
+    }
+
+    protected function beforeRefreshParallelPhyiscalDatabase($callback): self
+    {
+        $this->beforeRefreshParallelPhyiscalDatabaseCallbacks[] = $callback;
+
+        return $this;
     }
 
     protected function refreshParallelPhyiscalDatabase(): void
@@ -86,5 +96,12 @@ trait WithParallelPhyiscalDatabase
         $default = config('database.default');
 
         return config("database.connections.$default.database") !== ':memory:';
+    }
+
+    private function callBeforeRefreshParallelPhyiscalDatabase(): void
+    {
+        foreach ($this->beforeRefreshParallelPhyiscalDatabaseCallbacks as $callback) {
+            $callback();
+        }
     }
 }

@@ -4,7 +4,7 @@ namespace Recca0120\LaravelParallel\Tests\Fixtures;
 
 use Illuminate\Support\Facades\Hash;
 
-trait setupDatabase
+trait SetupDatabase
 {
     protected function databaseSetUp($app)
     {

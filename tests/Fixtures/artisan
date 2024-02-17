@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\Concerns\HandlesRoutes;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
-use Recca0120\LaravelParallel\Tests\Fixtures\setupDatabase;
+use Recca0120\LaravelParallel\Tests\Fixtures\SetupDatabase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -18,7 +18,7 @@ require_once __DIR__.'/../../vendor/autoload.php';
 
 $laravel = new class() {
     use CreatesApplication;
-    use setupDatabase;
+    use SetupDatabase;
     use HandlesRoutes;
 
     private $app;
