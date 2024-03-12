@@ -26,13 +26,11 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      - name: Install dependencies
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 5
-          max_attempts: 5
-          command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+      - name: Install Composer dependencies
+        run: |
+          if [[ "${{ matrix.php }}" = "8.3" ]]; then sed -i -e 's/\("orchestra\/testbench":[[:space:]]*\)".*"/\1"^9.0"/' composer.json; fi
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
 
       - name: Execute tests
         continue-on-error: ${{ matrix.php > 8 }}
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/phpunit
