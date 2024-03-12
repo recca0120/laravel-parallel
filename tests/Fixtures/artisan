@@ -9,6 +9,7 @@ use Orchestra\Testbench\Concerns\HandlesRoutes;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
 use Recca0120\LaravelParallel\Tests\Fixtures\SetupDatabase;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -118,6 +119,7 @@ $laravel = new class() {
     }
 };
 
+#[AsCommand('echo')]
 class EchoCommand extends Command
 {
     protected static $defaultName = 'echo';

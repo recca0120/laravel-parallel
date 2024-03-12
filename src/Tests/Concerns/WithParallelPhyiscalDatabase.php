@@ -74,9 +74,6 @@ trait WithParallelPhyiscalDatabase
         }
     }
 
-    /**
-     * @return void
-     */
     private function bindParallelRequest(): void
     {
         $this->app->bind(ParallelRequest::class, function () {

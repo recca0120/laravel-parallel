@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\Concerns\MakesHttpRequests;
 use Illuminate\Queue\SerializesAndRestoresModelIdentifiers;
 use Illuminate\Support\Facades\Auth;
 use Recca0120\LaravelParallel\ResponseIdentifier;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,6 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+#[AsCommand(self::COMMAND_NAME)]
 class ParallelCommand extends Command
 {
     use MakesHttpRequests;
@@ -35,7 +37,7 @@ class ParallelCommand extends Command
      */
     protected $app;
 
-    public function __construct(Application $app = null)
+    public function __construct(?Application $app = null)
     {
         parent::__construct();
         $this->setLaravel($app);
@@ -44,7 +46,7 @@ class ParallelCommand extends Command
     /**
      * @return $this
      */
-    public function setLaravel(Application $app = null): self
+    public function setLaravel(?Application $app = null): self
     {
         $this->app = $app;
 

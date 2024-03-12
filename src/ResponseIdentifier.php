@@ -79,7 +79,7 @@ class ResponseIdentifier
      *
      * @license https://github.com/guzzle/psr7/blob/2.4.0/LICENSE
      *
-     * @param  string  $message HTTP request or response to parse.
+     * @param  string  $message  HTTP request or response to parse.
      */
     private static function parseMessage(string $message): array
     {

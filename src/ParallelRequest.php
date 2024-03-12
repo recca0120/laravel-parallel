@@ -12,8 +12,8 @@ use Recca0120\LaravelParallel\Console\ParallelCommand;
 
 class ParallelRequest
 {
-    use MakesHttpRequests;
     use InteractsWithAuthentication;
+    use MakesHttpRequests;
 
     /**
      * @var Request|null
@@ -23,7 +23,7 @@ class ParallelRequest
     /**
      * AsyncRequest constructor.
      */
-    public function __construct(Request $request = null)
+    public function __construct(?Request $request = null)
     {
         $this->request = $request ?? Request::capture();
     }
@@ -36,7 +36,7 @@ class ParallelRequest
     /**
      * @return $this
      */
-    public static function create(Request $request = null): self
+    public static function create(?Request $request = null): self
     {
         return new static($request);
     }
