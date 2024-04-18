@@ -2,9 +2,10 @@
 
 namespace Recca0120\LaravelParallel\Tests\Fixtures;
 
+use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Facades\Hash;
 
-trait setupDatabase
+trait SetupDatabase
 {
     protected function databaseSetUp($app)
     {
@@ -18,8 +19,10 @@ trait setupDatabase
 
         $app['config']->set('auth.providers.users.model', User::class);
 
+        /** @var Builder $schema */
         $schema = $app['db']->getSchemaBuilder();
 
+        $schema->dropIfExists('users');
         $schema->create('users', function ($table) {
             $table->increments('id');
             $table->string('email')->unique();

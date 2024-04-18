@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" backupStaticAttributes="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false"
          beStrictAboutTestsThatDoNotTestAnything="false" bootstrap="vendor/autoload.php" colors="true"
-         convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true"
-         processIsolation="false" stopOnError="false" stopOnFailure="false" verbose="true"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">./src</directory>
-        </include>
-    </coverage>
+         processIsolation="false" stopOnError="false" stopOnFailure="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd" cacheDirectory=".phpunit.cache"
+         backupStaticProperties="false">
     <testsuites>
         <testsuite name="Package Test Suite">
             <directory suffix="Test.php">./tests</directory>
@@ -20,4 +15,9 @@
         <env name="APP_DEBUG" value="true"/>
         <env name="SESSION_DRIVER" value="file"/>
     </php>
+    <source>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+    </source>
 </phpunit>

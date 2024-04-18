@@ -3,8 +3,6 @@
 namespace Recca0120\LaravelParallel\Tests\Console;
 
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Response;
 use Recca0120\LaravelParallel\Console\ParallelCommand;
 use Recca0120\LaravelParallel\ResponseIdentifier;
@@ -14,9 +12,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 class ParallelCommandTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
-
     /**
      * @var User
      */

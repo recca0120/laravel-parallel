@@ -35,7 +35,7 @@ class ParallelArtisan
      */
     private $process;
 
-    public function __construct(Request $request = null, array $env = [])
+    public function __construct(?Request $request = null, array $env = [])
     {
         $this->request = $request ?? Request::capture();
         $this->setEnv($env);
@@ -90,14 +90,14 @@ class ParallelArtisan
 
         $params = [];
         foreach ($parameters as $param => $val) {
-            if ($param && is_string($param) && '-' === $param[0]) {
-                $glue = ('-' === $param[1]) ? '=' : ' ';
+            if ($param && is_string($param) && $param[0] === '-') {
+                $glue = ($param[1] === '-') ? '=' : ' ';
                 if (is_array($val)) {
                     foreach ($val as $v) {
-                        $params[] = $param.('' !== $v ? $glue.$v : '');
+                        $params[] = $param.($v !== '' ? $glue.$v : '');
                     }
                 } else {
-                    $params[] = $param.('' !== $val ? $glue.$val : '');
+                    $params[] = $param.($val !== '' ? $glue.$val : '');
                 }
             } else {
                 $params[] = is_array($val) ? implode(' ', $val) : $val;
