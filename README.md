@@ -8,7 +8,7 @@
 
 ## Requirements
 
-- **Laravel** versions 5.7, 6.x, 7.x, 8.x and 9.x
+- **Laravel** versions 5.7, 6.x, 7.x, 8.x, 9.x, 10.x and 11.x
 - **PHP** 7.0 or greater
 
 ## Installation
